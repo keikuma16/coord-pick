@@ -21,7 +21,7 @@ export const ItemUpload = () => {
         }
 
         try{
-            const res = await fetch('http://127.0.0.1:8000/users/1/items', {
+            const res = await fetch('https://coord-pick.onrender.com/users/1/items', {
                 method:'POST',
                 body: formData
             });

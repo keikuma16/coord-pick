@@ -7,7 +7,7 @@ export const ItemList = () => {
     //APIからデータをとってくる
     const get_data = async () => {
             try{
-                const response = await fetch('http://127.0.0.1:8000/items')
+                const response = await fetch('https://coord-pick.onrender.com/items')
                 if(response.ok){
                     const res = await response.json();
                     setItems(res);
@@ -34,7 +34,7 @@ export const ItemList = () => {
                 {items.map((item)=>(
                     <div key={item.item_id} className='item-card' style={{borderBottom: '1px solid #ccc', margin: '10px 0'}}>
                         <img
-                            src={`http://127.0.0.1:8000/static/image/${item.item_image_URL}`}
+                            src={`https://coord-pick.onrender.com/static/image/${item.item_image_URL}`}
                             alt={item.item_name}
                             width='200'
                             height='200'
