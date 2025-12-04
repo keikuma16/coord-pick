@@ -17,9 +17,7 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 #CORS設定(Reactからのアクセス許可)
-origins = [
-    'http://localhost:5173'
-]
+origins = ['*']
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
