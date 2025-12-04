@@ -1,6 +1,7 @@
 import { useState } from "react"
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 export const Register = () => {
+    const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -14,7 +15,7 @@ export const Register = () => {
             'password':password
         }
         try{
-            const request = await fetch('https://coord-pick.onrender.com//users',{
+            const request = await fetch('https://coord-pick.onrender.com/users',{
                 method:'POST',
                 headers:{
                     'Content-Type':'application/json',
@@ -25,6 +26,7 @@ export const Register = () => {
                 const res = await request.json();
                 console.log('登録完了', res);
                 alert('登録が完了しました');
+                navigate('/list');
             }else{
                 console.error('登録失敗');
                 alert('登録に失敗しました')
