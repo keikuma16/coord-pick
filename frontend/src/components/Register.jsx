@@ -58,9 +58,7 @@ return(
             </div>
 
             {/* 登録 */}
-            <Link to='/list'>
-                <button type="submit">新規登録</button>
-            </Link>
+            <button type="submit">新規登録</button>
         </form>
     </div>
 )
