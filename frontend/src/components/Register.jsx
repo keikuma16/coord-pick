@@ -14,7 +14,7 @@ export const Register = () => {
             'password':password
         }
         try{
-            const request = await fetch('http://127.0.0.1:8000/users',{
+            const request = await fetch('https://coord-pick.onrender.com//users',{
                 method:'POST',
                 headers:{
                     'Content-Type':'application/json',
