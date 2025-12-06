@@ -21,7 +21,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 #CORS設定(Reactからのアクセス許可)
 origins = [
     "http://localhost:3000",  
-    "https://あなたのVercelアプリのURL.vercel.app", 
+    "https://coord-pick.vercel.app", 
 ]
 
 app.add_middleware(
