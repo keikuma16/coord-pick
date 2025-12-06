@@ -27,8 +27,15 @@ export const ItemList = () => {
     return(
         <div style={{padding:'20px'}}>
             <h2>商品一覧</h2>
-            <Link to='/upload'>
-                <button>商品を出品する</button>
+            <Link to='/upload' style={{
+                display: 'inline-block',
+                padding: '10px 20px',
+                backgroundColor: '#333',
+                color: 'white',
+                textDecoration: 'none',
+                borderRadius: '5px'
+            }}>
+                商品を出品する
             </Link>
             <div className="item-grid">
                 {items.map((item)=>(
