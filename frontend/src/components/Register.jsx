@@ -15,7 +15,7 @@ export const Register = () => {
             'password':password
         }
         try{
-            const request = await fetch('https://coord-pick.onrender/users',{
+            const request = await fetch('https://fastapi-demo-y2bu.onrender.com/users',{
                 method:'POST',
                 headers:{
                     'Content-Type':'application/json',
