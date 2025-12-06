@@ -15,7 +15,7 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 if not os.path.exists('static'):
     os.makedirs('static')
-    
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 #CORS設定(Reactからのアクセス許可)
@@ -47,7 +47,7 @@ def get_db():
 @app.post('/users', response_model=schemas.User)
 def create_users(user: schemas.UserCreate, db: Session = Depends(get_db)):
     #登録済みメアドの除去
-    db_user = db.query(models.User).filter(user.email == models.User.email).first()
+    db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if db_user:    
         raise HTTPException(status_code=400, detail='このメールアドレスは登録済みです')
     #passwordのハッシュ化
