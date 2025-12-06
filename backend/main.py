@@ -21,7 +21,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 #CORS設定(Reactからのアクセス許可)
 origins = [
     "http://localhost:3000",  
-    "https://coord-pick.vercel.app", 
+    "https://fastapi-demo-y2bu.onrender.com", 
 ]
 
 app.add_middleware(
