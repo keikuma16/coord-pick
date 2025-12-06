@@ -26,7 +26,7 @@ export const Register = () => {
                 const res = await request.json();
                 console.log('登録完了', res);
                 alert('登録が完了しました');
-                navigate('/list');
+                navigate('/');
             }else{
                 console.error('登録失敗');
                 alert('登録に失敗しました')
