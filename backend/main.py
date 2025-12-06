@@ -19,13 +19,17 @@ if not os.path.exists('static'):
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 #CORS設定(Reactからのアクセス許可)
-origins = ['*']
+origins = [
+    "http://localhost:3000",  
+    "https://あなたのVercelアプリのURL.vercel.app", 
+]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=['*'],
-    allow_headers=['*'],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # passwordのハッシュ化
