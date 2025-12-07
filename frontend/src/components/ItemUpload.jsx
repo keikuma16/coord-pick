@@ -21,7 +21,7 @@ export const ItemUpload = () => {
         }
 
         try{
-            const res = await fetch('https://coord-pick.onrender.com/users/1/items', {
+            const res = await fetch('https://fastapi-demo-y2bu.onrender.com/1/items', {
                 method:'POST',
                 body: formData
             });
