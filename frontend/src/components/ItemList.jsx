@@ -7,7 +7,7 @@ export const ItemList = () => {
     //APIからデータをとってくる
     const get_data = async () => {
             try{
-                const response = await fetch('https://coord-pick.onrender.com/items')
+                const response = await fetch('https://fastapi-demo-y2bu.onrender.com/items')
                 if(response.ok){
                     const res = await response.json();
                     setItems(res);
