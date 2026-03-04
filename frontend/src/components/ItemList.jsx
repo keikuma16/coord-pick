@@ -1,19 +1,20 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom";
+import "./ItemList.css";
+import { OpenList } from "./OpenList";
 
 export const ItemList = () => {
-    const [items, setItems] = useState([]);
-
+    const [stylings, setStylings] = useState([]);
     //APIからデータをとってくる
     const get_data = async () => {
             try{
-                const response = await fetch('https://fastapi-demo-y2bu.onrender.com/items')
+                const response = await fetch('http://127.0.0.1:8000/stylings')
                 if(response.ok){
                     const res = await response.json();
-                    setItems(res);
-                    console.log('商品表示完了',res);
+                    setStylings(res);
+                    console.log('スタイリング表示完了',res);
                 }else{
-                    console.log('商品を表示できません');
+                    console.log('スタイリングを表示できません');
                 }
             }
             catch(error){
@@ -25,40 +26,19 @@ export const ItemList = () => {
     },[])
 
     return(
-        <div style={{padding:'20px'}}>
-            <h2>商品一覧</h2>
-            <Link to='/upload' style={{
-                display: 'inline-block',
-                padding: '10px 20px',
-                backgroundColor: '#333',
-                color: 'white',
-                textDecoration: 'none',
-                borderRadius: '5px'
-            }}>
-                商品を出品する
-            </Link>
+        <>
+            <h2>スタイリング一覧</h2>
             <div className="item-grid">
-                {items.map((item)=>(
-                    <div key={item.item_id} className='item-card' style={{borderBottom: '1px solid #ccc', margin: '10px 0'}}>
-                        <img
-                            src={`https://coord-pick.onrender.com/static/image/${item.item_image_URL}`}
-                            alt={item.item_name}
-                            width='200'
-                            height='200'
-                            style={{objectFit: 'cover'}}
-                            className="item-img"
-                        />
-                        <div className="item-info">
-                            <h3>{item.item_name}</h3>
-                            <p>{item.item_price}円</p>
-                            <p>カテゴリー:{item.item_category}</p>
-                            <p>サイズ:{item.item_size}</p>
-                        </div>
-                    </div>
-                ))}
-            
+            {stylings.map((styling) => (
+                <div key={styling.styling_id} className="card">
+                    <img
+                    className="card-img"
+                    src={styling.styling_item_img}
+                    />
+                <OpenList styling={styling}/>
+                </div>
+            ))}
             </div>
-        </div>
-        
+        </>
     )
 }

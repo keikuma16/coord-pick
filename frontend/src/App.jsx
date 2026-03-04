@@ -1,27 +1,25 @@
-import { useState } from 'react'
 import './App.css'
 import { Register } from './components/Register'
 import { ItemList } from './components/ItemList'
 import { ItemUpload } from './components/ItemUpload'
-import { BrowserRouter, Routes, Route, Link} from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link, useParams} from 'react-router-dom'
 
 function App() {
     return(
         <BrowserRouter>
-            <div className='App'>
-                <header style={{ padding: '20px', backgroundColor:'#333', color:'white', marginBottom:'20px', justifyContent: 'space-between', alignItems:'center'}}>
-                    <h1 style={{margin:20}}>Croord Pick</h1>
-                    <nav>
-                        <Link to='/'>商品一覧</Link>
-                        <Link to='/register'>会員登録</Link>
-                        <Link to='/upload'>出品</Link>
-                    </nav>
-                </header>
+            <div className='container'>
+                <h1 className='title'>Croord Pick</h1>
+                <nav className='navigate'>
+                    <Link to='/items' className='styling-button'>スタイリング一覧</Link>
+                    <Link to='/register' className='register-button'>会員登録</Link>
+                    <Link to='/upload' className='upload-button'>投稿</Link>
+                </nav>
+                
                 <Routes>
                     <Route path='/register' element={<Register/>}/>
                     <Route path='/upload' element={<ItemUpload/>}/>
-                    <Route path='/' element={<ItemList/>}/>
-                </Routes>            
+                    <Route path='/items' element={<ItemList/>}/>
+                </Routes>        /    
             </div>
         </BrowserRouter>
     )

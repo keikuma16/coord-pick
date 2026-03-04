@@ -7,20 +7,27 @@ class User(Base):
 
     user_id = Column(Integer, primary_key=True, index=True)
     user_name = Column(String, unique=True, index=True)
-    email = Column(String, unique=True, index=True)
-    password = Column(String)
+    stylings = relationship('Styling', back_populates='creator')
 
-    items = relationship('Item', back_populates='seller')
+class Styling(Base):
+    __tablename__ = 'stylings'
+
+    styling_id = Column(Integer, primary_key=True, index=True)
+    styling_explanation = Column(String)
+    styling_item_img = Column(String, nullable=False)
+    user_id = Column(Integer, ForeignKey('users.user_id'))
+    creator = relationship('User', back_populates='stylings')
+    items = relationship('Item', back_populates='styling_post')
 
 class Item(Base):
     __tablename__ = 'items'
 
-    item_category = Column(String, index=True)
-    item_price = Column(Integer, index=True)
-    item_id = Column(Integer, primary_key=True, index=True)
-    item_name = Column(String, index=True)
-    item_size = Column(String, index=True)
-    seller_id = Column(Integer, ForeignKey('users.user_id', ondelete='CASCADE'),nullable=False)
-    item_image_URL = Column(String, index=True)
+    item_id = Column(Integer,primary_key=True, index=True)
+    item_url = Column(String)
+    item_name = Column(String, nullable=False)
+    item_brand = Column(String)
+    item_category = Column(String)
+    styling_id = Column(Integer, ForeignKey('stylings.styling_id'))
+    styling_post = relationship('Styling', back_populates='items')
 
-    seller = relationship('User', back_populates='items')
+
