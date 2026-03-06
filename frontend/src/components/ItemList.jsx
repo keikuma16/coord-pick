@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom";
 import "./ItemList.css";
-import { OpenList } from "./OpenList";
 
 export const ItemList = () => {
     const [stylings, setStylings] = useState([]);
@@ -35,7 +34,10 @@ export const ItemList = () => {
                     className="card-img"
                     src={styling.styling_item_img}
                     />
-                <OpenList styling={styling}/>
+                    <p>説明:{styling.styling_explanation}</p>
+                    <Link to={`/detail/${styling.styling_id}`} className="detail-button">
+                        詳細
+                    </Link>
                 </div>
             ))}
             </div>

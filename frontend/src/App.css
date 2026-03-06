@@ -7,7 +7,7 @@ html, body {
 }
 
 .container{
-    background-color: black;
+    background-color: #191970;
     width: 100%;
     min-height: 100vh;
     display: block;

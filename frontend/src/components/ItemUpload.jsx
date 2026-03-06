@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { Link, useParams } from 'react-router-dom';
 import { useState } from "react";
 import "./ItemUpload.css";
 
@@ -15,6 +14,9 @@ export const ItemUpload = () => {
     
     const handleSubmit = async(e) => {
         e.preventDefault();
+        if(items.length === 0){
+            alert('商品を一つ以上追加してください')
+        }
         const formData = new FormData();
         formData.append('styling_explanation', explanation);
         formData.append('styling_item_img', imageUrl);

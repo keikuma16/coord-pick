@@ -3,33 +3,37 @@
     grid-template-columns: repeat(auto-fit, minmax(236px, 1fr));
     gap: 16px;
     padding: 16px;
-    background-color: #2c2929;
+    background-color: #191970;
     width: 100%;
     box-sizing: border-box;
 }
 
 h2 {
     display: block;
-    color: #3a3838;
+    color: #ECEFF1;
     text-align: center;
 }
 
 .card{
+    border-radius: 12px;
+    width: 100%;
     background-color: white;
-    width: 300px;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
     border: 1px;
 }
 
 .card-img{
+    border-radius: 12px 12px 0px 0px;
     width: 100%;
     height: auto;
     max-height: 250px;
     aspect-ratio: 1 / 1;
-    object-fit: cover;
+    object-fit: contain;
     object-position: center;
-    display: block
+    display: block;
+    border-bottom: 2px solid black;
 }
 
 .card dl{
@@ -53,4 +57,17 @@ h2 {
     text-overflow: ellipsis; 
     font-size: 0.8rem;
     text-decoration: underline;
+}
+
+.detail-button {
+    display: block;
+    width: 80%;
+    padding: 10px 20px;
+    margin: 20px auto;
+    background-color: #3b82f6;
+    border-radius: 50px;
+    font-size: 16px;
+    align-self: center;
+    text-align: center;
+    box-sizing: border-box;
 }

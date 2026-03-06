@@ -6,6 +6,9 @@ export const Register = () => {
     const [username, setUsername] = useState('');
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if(username == ''){
+            alert('ユーザー名を入力してください')
+        }
         console.log('ユーザー登録完了');
         //APIにデータを送る
         const requestData = {
@@ -24,7 +27,7 @@ export const Register = () => {
                 console.log('登録完了', res);
                 alert('登録が完了しました');
                 console.log(res)
-                navigate('/');
+                navigate('/items')
             }else{
                 console.error('登録失敗');
                 alert('登録に失敗しました')

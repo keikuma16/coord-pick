@@ -2,7 +2,8 @@ import './App.css'
 import { Register } from './components/Register'
 import { ItemList } from './components/ItemList'
 import { ItemUpload } from './components/ItemUpload'
-import { BrowserRouter, Routes, Route, Link, useParams} from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link} from 'react-router-dom'
+import { ItemDetail } from './components/ItemDetail'
 
 function App() {
     return(
@@ -19,6 +20,7 @@ function App() {
                     <Route path='/register' element={<Register/>}/>
                     <Route path='/upload' element={<ItemUpload/>}/>
                     <Route path='/items' element={<ItemList/>}/>
+                    <Route path='/detail/:styling_id' element={<ItemDetail />}/>
                 </Routes>        /    
             </div>
         </BrowserRouter>

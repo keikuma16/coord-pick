@@ -1,0 +1,38 @@
+.detail-container {
+    min-height: 100vh;
+    padding-bottom: 50px;
+}
+
+.detail-container h2 {
+    color: white;
+    margin: 20px 0;
+    font-size: 24px;
+}
+
+.detail-container img {
+    background-color: black;
+    display: block;
+    margin: 20px auto;
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    border-radius: 12px; 
+    object-fit: contain;
+    margin-bottom: 20px;
+    object-fit: contain;
+    object-position: center;
+    aspect-ratio: 1 / 1;
+    
+}
+
+dl {
+    color: white;
+    font-size: 40px;
+    text-align: center;
+    margin: 20px auto;
+    border: 1px solid black;
+}
+
+a {
+    color: white;
+}
