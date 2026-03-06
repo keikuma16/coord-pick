@@ -106,3 +106,13 @@ async def get_styling_detail(styling_id: int, db: Session = Depends(get_db)):
     .first()
 
     return styling
+
+@app.delete("/delete/{styling_id}")
+async def delete_styling(styling_id: int, db:Session = Depends(get_db)):
+    styling = db.query(models.Styling).filter(models.Styling.styling_id == styling_id).first()
+
+    if styling is None:
+        return{"message":"投稿が存在しません"}
+
+    db.delete(styling)
+    db.commit()

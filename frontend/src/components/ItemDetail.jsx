@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./ItemDetail.css"
 
 export const ItemDetail = () => {
+    const navigate = useNavigate();
     const [styling, setStyling] = useState(null);
     const { styling_id } = useParams();
         //APIからデータをとってくる
@@ -24,6 +25,24 @@ export const ItemDetail = () => {
         useEffect (() => {
             get_data();
         },[styling_id])
+
+        const handleDelete = async(id) => {
+            if(!window.confirm('消去してよろしいでしょうか')) return;
+
+            try{
+                const res = await fetch(`https://fastapi-demo-y2bu.onrender.com/delete/${id}`,{
+                    method: "DELETE",
+                })
+                if(res.ok){
+                    alert('消去しました')
+                    navigate("/stylings");
+                }
+            }
+            catch(error){
+                console.error('消去失敗')
+            }
+        } 
+
     if (!styling) {
         return <div style={{color: "white"}}>データを読み込んでいます...</div>;
     }
@@ -41,6 +60,7 @@ export const ItemDetail = () => {
                     </dd>
                 </dl>
                 ))}
+                <button className="delete-button" onClick={() => handleDelete(styling.styling_id)}>消去</button>
             </div>
     )
 }

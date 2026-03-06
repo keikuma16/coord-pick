@@ -27,7 +27,7 @@
 
 dl {
     color: white;
-    font-size: 40px;
+    font-size: 20px;
     text-align: center;
     margin: 20px auto;
     border: 1px solid black;
@@ -35,4 +35,13 @@ dl {
 
 a {
     color: white;
+}
+
+.delete-button {
+    background-color: red;
+    display: block;
+    margin: 10px auto;
+    width: 150px;
+    height: 40px;
+    border-radius: 10px;
 }
