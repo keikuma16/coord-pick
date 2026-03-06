@@ -15,7 +15,7 @@ export const Register = () => {
             'user_name':username,
         }
         try{
-            const request = await fetch('http://localhost:8000/users',{
+            const request = await fetch('https://fastapi-demo-y2bu.onrender.com/users',{
                 method:'POST',
                 headers:{
                     'Content-Type':'application/json',

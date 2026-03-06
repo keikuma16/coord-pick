@@ -7,7 +7,7 @@ export const ItemList = () => {
     //APIからデータをとってくる
     const get_data = async () => {
             try{
-                const response = await fetch('http://127.0.0.1:8000/stylings')
+                const response = await fetch('https://fastapi-demo-y2bu.onrender.com/stylings')
                 if(response.ok){
                     const res = await response.json();
                     setStylings(res);

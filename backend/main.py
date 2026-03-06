@@ -25,7 +25,10 @@ def get_db():
 #CORSエラーの解除
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "https://coord-pick.vercel.app/",
+        "http://localhost:5173"
+        ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -57,7 +60,7 @@ async def styling_create(
     with open(file_path, "wb") as f:
         f.write(await styling_item_img.read())
     
-    img_url = f"http://localhost:8000/images/{styling_item_img.filename}"
+    img_url = f"https://fastapi-demo-y2bu.onrender.com/images/{styling_item_img.filename}"
 
     new_styling=models.Styling(
         styling_explanation = styling_explanation,

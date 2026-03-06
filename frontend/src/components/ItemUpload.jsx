@@ -23,7 +23,7 @@ export const ItemUpload = () => {
         formData.append('items', JSON.stringify(items));
 
         try{
-            const res = await fetch(`http://localhost:8000/upload`, {
+            const res = await fetch(`https://fastapi-demo-y2bu.onrender.com/upload`, {
                 method:'POST',
                 body: formData
             });
