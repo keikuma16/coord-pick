@@ -8,7 +8,11 @@ import os
 from fastapi.staticfiles import StaticFiles
 import json
 from db import engine, SessionLocal, Base
-    
+import cloudinary
+import cloudinary.uploader 
+
+
+
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -21,6 +25,13 @@ def get_db():
         yield db
     finally:
         db.close()
+
+cloudinary.config( 
+  cloud_name = "dlyg2rrc3", 
+  api_key = "929797163953452", 
+  api_secret = "yiAZra0JV9OTWdSe2OuigjTxd0s",
+  secure = True
+)
 
 #CORSエラーの解除
 origins = ["*"]
@@ -53,13 +64,10 @@ async def styling_create(
     db: Session = Depends(get_db)
 ):
     item_list = json.loads(items)
-    save_folder = "images"
-    os.makedirs(save_folder, exist_ok = True)  
-    file_path = os.path.join(save_folder, styling_item_img.filename)
-    with open(file_path, "wb") as f:
-        f.write(await styling_item_img.read())
+
+    upload_result = cloudinary.uploader.upload(styling_item_img.file)
     
-    img_url = f"https://fastapi-demo-y2bu.onrender.com/images/{styling_item_img.filename}"
+    img_url = upload_result.get("secure_url")
 
     new_styling=models.Styling(
         styling_explanation = styling_explanation,
