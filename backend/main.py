@@ -86,3 +86,13 @@ async def styling_create(
 async def get_styling(db: Session = Depends(get_db)):
     stylings = db.query(models.Styling).options(joinedload(models.Styling.items)).all()
     return stylings
+
+#詳細情報の取得
+@app.get("/detail/{styling_id}")
+async def get_styling_detail(styling_id: int, db: Session = Depends(get_db)):
+    styling = db.query(models.Styling)\
+    .options(joinedload(models.Styling.items))\
+    .filter(models.Styling.styling_id == styling_id)\
+    .first()
+
+    return styling
