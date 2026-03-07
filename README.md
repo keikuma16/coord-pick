@@ -12,25 +12,27 @@ https://coord-pick.vercel.app
 cd backend
 pip install -r requirements.txt
 uvicorn main:app --reload
+```
 
 ### Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
+```
 
-##技術スタック
+##技術スタックと技術選定理由
 ### Backend
-- **Python / FastAPI**
+- **Python / FastAPI**:高速かつ型安全なAPI開発のため採用
 - **SQLAlchemy**
 - **Uvicorn**
 
 ### Frontend
-- **React (Vite)**
+- **React (Vite)**:開発スピードとビルドパフォーマンスを重視し、Viteを採用。
 - **Axios**
 
 ### Infrastructure / Tools
-- **Cloudinary**
+- **Cloudinary**:画像データの最適化配信・クラウド管理のため導入。
 - **Vercel**
 - **Git / GitHub**
 
