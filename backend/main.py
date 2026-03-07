@@ -17,8 +17,6 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-app.mount("/images",StaticFiles (directory="images"), name="images")    
-
 def get_db():
     db = SessionLocal()
     try:
@@ -43,6 +41,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+ 
 
 #Userの登録
 @app.post("/users")
