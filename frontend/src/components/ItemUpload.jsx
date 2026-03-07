@@ -88,7 +88,7 @@ export const ItemUpload = () => {
                     <button type="button" onClick={addItem} className="add-button">商品を追加</button>
                     <ul>
                         {items.map((item) => (
-                            <li key={index}>{item.name}</li>
+                            <li key={item.item_id}>{item.name}</li>
                         ))}
                     </ul>
 
