@@ -32,7 +32,10 @@ cloudinary.config(
 )
 
 #CORSエラーの解除
-origins = ["*"]
+origins = [
+    "http://localhost:5173",
+    "https://coord-pick.vercel.app"
+]
 
 app.add_middleware(
     CORSMiddleware,
