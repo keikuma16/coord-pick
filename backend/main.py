@@ -34,7 +34,7 @@ cloudinary.config(
 #CORSエラーの解除
 origins = [
     "http://localhost:5173",
-    "https://coord-pick.vercel.app"
+    "https://fastapi-demo-y2bu.onrender.com"
 ]
 
 app.add_middleware(
