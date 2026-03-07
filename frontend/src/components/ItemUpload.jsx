@@ -16,6 +16,7 @@ export const ItemUpload = () => {
         e.preventDefault();
         if(items.length === 0){
             alert('商品を一つ以上追加してください')
+            return;
         }
         const formData = new FormData();
         formData.append('styling_explanation', explanation);
