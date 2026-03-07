@@ -50,6 +50,7 @@ npm run dev
 │   │   └── App.jsx    
 │   └── index.html
 └── README.md
+```
 
 ## こだわり
 - **型安全な設計**: FastAPIのPydanticモデルとSQLAlchemyを組み合わせ、堅牢でメンテナンス性の高いAPIを構築しました。
