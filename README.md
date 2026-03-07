@@ -2,7 +2,7 @@
 
 SNS（TikTok/Instagram等）のコメント欄で頻発する「購入先が分からない」という課題を解決するための、ファッション特定・共有プラットフォームです。
 
-##URL
+## URL
 https://coord-pick.vercel.app
 
 ##起動手順
@@ -21,7 +21,7 @@ npm install
 npm run dev
 ```
 
-##技術スタックと技術選定理由
+## 技術スタックと技術選定理由
 ### Backend
 - **Python / FastAPI**:高速かつ型安全なAPI開発のため採用
 - **SQLAlchemy**
@@ -36,7 +36,7 @@ npm run dev
 - **Vercel**
 - **Git / GitHub**
 
-##ディレクトリ構成
+## ディレクトリ構成
 ```bash
 .
 ├── backend        
