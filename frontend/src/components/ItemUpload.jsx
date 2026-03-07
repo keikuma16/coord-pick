@@ -18,13 +18,18 @@ export const ItemUpload = () => {
             alert('商品を一つ以上追加してください')
             return;
         }
+
+        console.log('items:', items);
+        console.log('items JSON:', JSON.stringify(items));
+        console.log('explanation:', explanation);
+        console.log('imageUrl:', imageUrl);
         const formData = new FormData();
         formData.append('styling_explanation', explanation);
         formData.append('styling_item_img', imageUrl);
         formData.append('items', JSON.stringify(items));
 
         try{
-            const res = await fetch(`https://fastapi-demo-y2bu.onrender.com/upload`, {
+            const res = await fetch(`https://coord-pick.onrender.com/upload`, {
                 method:'POST',
                 body: formData
             });
