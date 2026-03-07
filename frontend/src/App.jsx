@@ -21,7 +21,7 @@ function App() {
                     <Route path='/upload' element={<ItemUpload/>}/>
                     <Route path='/items' element={<ItemList/>}/>
                     <Route path='/detail/:styling_id' element={<ItemDetail />}/>
-                </Routes>        /    
+                </Routes>      
             </div>
         </BrowserRouter>
     )

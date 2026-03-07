@@ -116,3 +116,5 @@ async def delete_styling(styling_id: int, db:Session = Depends(get_db)):
 
     db.delete(styling)
     db.commit()
+    return styling
+

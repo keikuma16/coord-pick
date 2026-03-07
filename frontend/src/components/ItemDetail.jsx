@@ -35,7 +35,7 @@ export const ItemDetail = () => {
                 })
                 if(res.ok){
                     alert('消去しました')
-                    navigate("/stylings");
+                    navigate("/items");
                 }
             }
             catch(error){
