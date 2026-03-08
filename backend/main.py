@@ -27,7 +27,7 @@ def get_db():
 app.mount("/images", StaticFiles(directory="images"), name="images")
 
 cloudinary.config( 
-  cloud_name = "dlyg2rrc3", 
+  cloud_name = "dlyq2rrc3", 
   api_key = "929797163953452", 
   api_secret = "yiAZra0JV9OTWdSe2OuigjTxd0s",
   secure = True
@@ -70,7 +70,11 @@ async def styling_create(
 ):
     item_list = json.loads(items)
 
-    upload_result = cloudinary.uploader.upload(styling_item_img.file.read())
+    upload_result = cloudinary.uploader.upload(
+        styling_item_img.file.read(),
+        folder="coordpick",
+        resource_type="image"
+)
     
     img_url = upload_result.get("secure_url")
 
