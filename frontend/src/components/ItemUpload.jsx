@@ -6,7 +6,7 @@ export const ItemUpload = () => {
     const navigate = useNavigate();
     const [explanation, setExplanation] = useState('');
     const [items, setItems] = useState([]);
-    const [imageUrl, setImageUrl] = useState('');
+    const [imageUrl, setImageUrl] = useState(null);
     const [itemname, setItemname] = useState('');
     const [brand, setBrand] = useState('');
     const [itemurl, setItemurl] = useState('');
@@ -14,6 +14,10 @@ export const ItemUpload = () => {
     
     const handleSubmit = async(e) => {
         e.preventDefault();
+        if (!imageUrl) {
+            alert("画像を選択してください");
+            return;
+        }
         if(items.length === 0){
             alert('商品を一つ以上追加してください')
             return;
@@ -29,7 +33,7 @@ export const ItemUpload = () => {
         formData.append('items', JSON.stringify(items));
 
         try{
-            const res = await fetch(`https://coord-pick.onrender.com/upload`, {
+            const res = await fetch(`https://fastapi-demo-y2bu.onrender.com/upload`, {
                 method:'POST',
                 body: formData
             });
