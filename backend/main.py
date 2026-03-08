@@ -42,7 +42,7 @@ origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=False,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -70,7 +70,7 @@ async def styling_create(
 ):
     item_list = json.loads(items)
 
-    upload_result = cloudinary.uploader.upload(styling_item_img.file)
+    upload_result = cloudinary.uploader.upload(styling_item_img.file.read())
     
     img_url = upload_result.get("secure_url")
 
