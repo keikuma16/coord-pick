@@ -1,9 +1,9 @@
 import './App.css'
-import { Register } from './components/Register'
-import { ItemList } from './components/ItemList'
-import { ItemUpload } from './components/ItemUpload'
+import { Register } from './components/Register.js'
+import { ItemList } from './components/ItemList.js'
+import { ItemUpload } from './components/ItemUpload.js'
 import { BrowserRouter, Routes, Route, Link} from 'react-router-dom'
-import { ItemDetail } from './components/ItemDetail'
+import { ItemDetail } from './components/ItemDetail.js'
 
 function App() {
     return(

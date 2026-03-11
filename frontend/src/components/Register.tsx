@@ -1,10 +1,10 @@
-import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react"
+import { useNavigate } from "react-router-dom";
 import "./Register.css"
 export const Register = () => {
     const navigate = useNavigate();
-    const [username, setUsername] = useState('');
-    const handleSubmit = async (e) => {
+    const [username, setUsername] = useState<string>('');
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if(username == ''){
             alert('ユーザー名を入力してください')
@@ -44,7 +44,7 @@ return(
         <form onSubmit={handleSubmit}>
             {/* ユーザー名入力 */}
             <label>ユーザー名</label>
-            <input type='text' value={username} onChange={(e) => setUsername(e.target.value)}/>
+            <input type='text' value={username} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}/>
             {/* 登録 */}
             <button type="submit">新規登録</button>
         </form>

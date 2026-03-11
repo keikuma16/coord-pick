@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom";
 import "./ItemList.css";
+import type { Item } from "../types.js";
 
 export const ItemList = () => {
-    const [stylings, setStylings] = useState([]);
+    interface Styling {
+        styling_id: number,
+        styling_explanation: string,
+        styling_item_img: string,
+        items: Item[]
+    }
+    const [stylings, setStylings] = useState<Styling[]>([]);
     //APIからデータをとってくる
     const get_data = async () => {
             try{

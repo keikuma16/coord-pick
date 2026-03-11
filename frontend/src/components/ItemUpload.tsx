@@ -1,18 +1,19 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import "./ItemUpload.css";
+import type { Item } from "../types.js";
 
 export const ItemUpload = () => {
     const navigate = useNavigate();
-    const [explanation, setExplanation] = useState('');
-    const [items, setItems] = useState([]);
-    const [imageUrl, setImageUrl] = useState(null);
-    const [itemname, setItemname] = useState('');
-    const [brand, setBrand] = useState('');
-    const [itemurl, setItemurl] = useState('');
-    const [category, setCategory] = useState('');
+    const [explanation, setExplanation] = useState<string>('');
+    const [items, setItems] = useState<Item[]>([]);
+    const [imageUrl, setImageUrl] = useState<File | null>(null);
+    const [itemname, setItemname] = useState<string>('');
+    const [brand, setBrand] = useState<string>('');
+    const [itemurl, setItemurl] = useState<string>('');
+    const [category, setCategory] = useState<string>('');
     
-    const handleSubmit = async(e) => {
+    const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!imageUrl) {
             alert("画像を選択してください");
@@ -45,8 +46,8 @@ export const ItemUpload = () => {
             }
         }
         catch(error){
-            alert('出品できませんでした',error);
-            console.log(error);
+            alert('出品できませんでした');
+            console.error(error);
         }
     }
     const addItem = () => {
@@ -77,7 +78,11 @@ export const ItemUpload = () => {
                     </div>
                     <div className="img-url">
                         <label>写真</label>
-                        <input type="file" onChange={(e) => setImageUrl(e.target.files[0])}/>
+                        <input type="file" onChange={(e) =>{ 
+                            if(e.target.files && e.target.files[0]){
+                                setImageUrl(e.target.files[0])
+                            }
+                        }}/>
                     </div>
                     <div className="item-name">
                        <label>商品名</label> 
@@ -97,8 +102,8 @@ export const ItemUpload = () => {
                     </div>
                     <button type="button" onClick={addItem} className="add-button">商品を追加</button>
                     <ul>
-                        {items.map((item) => (
-                            <li key={item.item_id}>{item.name}</li>
+                        {items.map((item,index) => (
+                            <li key={index}>{item.name}</li>
                         ))}
                     </ul>
 

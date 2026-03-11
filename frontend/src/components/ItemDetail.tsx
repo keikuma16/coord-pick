@@ -3,8 +3,21 @@ import { useParams, useNavigate } from "react-router-dom";
 import "./ItemDetail.css"
 
 export const ItemDetail = () => {
+    interface DetailItem{
+        item_id: number,
+        item_name: string,
+        item_brand: string,
+        item_category: string,
+        item_url:string
+    }
+    interface DetailStyling {
+        styling_id: number,
+        styling_explanation: string,
+        styling_item_img: string,
+        items: DetailItem[]
+    }
     const navigate = useNavigate();
-    const [styling, setStyling] = useState(null);
+    const [styling, setStyling] = useState<DetailStyling | null>(null);
     const { styling_id } = useParams();
         //APIからデータをとってくる
         const get_data = async () => {
@@ -26,7 +39,7 @@ export const ItemDetail = () => {
             get_data();
         },[styling_id])
 
-        const handleDelete = async(id) => {
+        const handleDelete = async(id: number) => {
             if(!window.confirm('消去してよろしいでしょうか')) return;
 
             try{
