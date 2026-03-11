@@ -127,3 +127,11 @@ async def delete_styling(styling_id: int, db:Session = Depends(get_db)):
     db.commit()
     return styling
 
+@app.get("/db-clean")
+async def db_clean():
+    from db import engine
+    from sqlalchemy import text
+    with engine.connect() as conn:
+        result = conn.execute(text("DELETE FROM stylings WHERE styling_id IN (1, 2, 3, 4, 5, 6, 7, 8)"))
+        conn.commit()
+    return {"status": "success", "deleted_count": result.rowcount}
