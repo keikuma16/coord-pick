@@ -24,8 +24,6 @@ def get_db():
     finally:
         db.close()
 
-app.mount("/images", StaticFiles(directory="images"), name="images")
-
 cloudinary.config( 
   cloud_name = "dlyq2rrc3", 
   api_key = "929797163953452", 
