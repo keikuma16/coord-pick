@@ -28,6 +28,7 @@ npm run dev
 - **Uvicorn**
 
 ### Frontend
+-＊＊Typescript**:型定義による安全性の向上のため。
 - **React (Vite)**:開発スピードとビルドパフォーマンスを重視し、Viteを採用。
 - **Axios**
 
