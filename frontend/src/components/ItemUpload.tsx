@@ -81,7 +81,7 @@ export const ItemUpload = () => {
                             if(e.target.files && e.target.files[0]){
                                 setImageUrl(e.target.files[0])
                             }
-                        }} className="border border-black rounded-sm ml-2 min-w-0 w-full"/>
+                        }} className="border border-black rounded-sm ml-2 min-w-0"/>
                     </div>
                     <div className="p-2 flex items-center">
                        <label className="text-black">商品名</label> 
