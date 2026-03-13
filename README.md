@@ -49,7 +49,7 @@ npm run dev
 ├── frontend         
 │   ├── src
 │   │   ├── components 
-│   │   └── App.jsx    
+│   │   └── App.tsx    
 │   └── index.html
 └── README.md
 ```
