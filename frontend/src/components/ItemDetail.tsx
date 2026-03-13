@@ -66,7 +66,7 @@ export const ItemDetail = () => {
                 </div>
                 <div className="flex flex-col">
                     {styling.items.map((item) => (
-                    <dl key={item.item_id} className="mx-auto w-full max-w-sm bg-gray-200">
+                    <dl key={item.item_id} className="mx-auto w-full max-w-sm bg-gray-200 border-b border-black">
                         <dt className="text-center">カテゴリー:{item.item_category}</dt>                                
                         <dd className="text-center">ブランド:{item.item_brand}</dd>
                         <dd className="text-center">商品名:{item.item_name}</dd>
