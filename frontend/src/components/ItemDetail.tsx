@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "./ItemDetail.css"
 
 export const ItemDetail = () => {
     interface DetailItem{
@@ -60,20 +59,24 @@ export const ItemDetail = () => {
         return <div style={{color: "white"}}>データを読み込んでいます...</div>;
     }
     return(
-            <div className="detail-container">
-                <h2>詳細情報</h2>
-                <img src={styling.styling_item_img} alt="Main" />
-                {styling.items.map((item) => (
-                <dl key={item.item_id}>
-                    <dt>カテゴリー:{item.item_category}</dt>                                
-                    <dd>ブランド:{item.item_brand}</dd>
-                    <dd>商品名:{item.item_name}</dd>
-                    <dd>説明:{styling.styling_explanation}</dd>
-                    <dd>URL:<a href={item.item_url}>商品を見る</a>
-                    </dd>
-                </dl>
-                ))}
-                <button className="delete-button" onClick={() => handleDelete(styling.styling_id)}>消去</button>
+            <div className="flex flex-col group">
+                <h2 className="text-center font-bold text-gray-50 text-2xl">詳細情報</h2>
+                <div className="w-full max-w-sm aspect-square overflow-hidden bg-gray-200 mx-auto rounded-t-md">
+                    <img src={styling.styling_item_img} alt="Main" className="w-full h-full object-contain"/>
+                </div>
+                <div className="flex flex-col">
+                    {styling.items.map((item) => (
+                    <dl key={item.item_id} className="mx-auto w-full max-w-sm bg-gray-200">
+                        <dt className="text-center">カテゴリー:{item.item_category}</dt>                                
+                        <dd className="text-center">ブランド:{item.item_brand}</dd>
+                        <dd className="text-center">商品名:{item.item_name}</dd>
+                        <dd className="text-center">説明:{styling.styling_explanation}</dd>
+                        <dd className="text-center">URL:<a href={item.item_url}>商品を見る</a>
+                        </dd>
+                    </dl>
+                    ))}
+                </div>
+                <button className="bg-red-500 mx-auto w-full max-w-sm px-3 rounded-b-md" onClick={() => handleDelete(styling.styling_id)}>消去</button>
             </div>
     )
 }

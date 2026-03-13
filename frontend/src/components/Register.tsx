@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { useNavigate } from "react-router-dom";
-import "./Register.css"
+
 export const Register = () => {
     const navigate = useNavigate();
     const [username, setUsername] = useState<string>('');
@@ -39,15 +39,19 @@ export const Register = () => {
         
     }
 return(
-    <div  className="register-form">
-        <h2>新規会員登録</h2>
-        <form onSubmit={handleSubmit}>
-            {/* ユーザー名入力 */}
-            <label>ユーザー名</label>
-            <input type='text' value={username} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}/>
-            {/* 登録 */}
-            <button type="submit">新規登録</button>
-        </form>
+    <div className="min-h-[70vh] flex items-center justify-center px-4">
+        <div  className="w-full max-w-md bg-white p-8 rounded-2xl">
+            <h2 className="text-2xl font-bold text-gray-800 text-center pb-4">
+                新規会員登録
+            </h2>
+            <form onSubmit={handleSubmit}>
+                {/* ユーザー名入力 */}
+                <label className="mr-2">ユーザー名</label>
+                <input type='text' value={username} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)} className="border border-black rounded-sm"/>
+                {/* 登録 */}
+                <button type="submit" className="ml-10 border border-black rounded-sm px-2">新規登録</button>
+            </form>
+        </div>
     </div>
 )
 }

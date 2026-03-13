@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import "./ItemUpload.css";
 import type { Item } from "../types.js";
 
 export const ItemUpload = () => {
@@ -69,46 +68,47 @@ export const ItemUpload = () => {
         console.log(items);
     }
     return(
-        <div className="input-grid">
-            <form onSubmit={handleSubmit}>
-                <h2>投稿</h2>
-                    <div className="explanation">
-                        <label>Styling説明</label>
-                        <input type="text" value={explanation} onChange={(e) => setExplanation(e.target.value)}/>
+        <div className="flex justify-center items-center min-h-[70vh]">
+            <form onSubmit={handleSubmit} className="bg-gray-50 rounded-2xl p-3 w-full max-w-xl my-auto">
+                <h2 className="text-center text-2xl text-black font-bold">投稿</h2>
+                    <div className="p-3">
+                        <label className="text-black">Styling説明</label>
+                        <input type="text" value={explanation} onChange={(e) => setExplanation(e.target.value)} className="border border-blackborder rounded-sm ml-2"/>
                     </div>
-                    <div className="img-url">
-                        <label>写真</label>
+                    <div className="p-3">
+                        <label className="text-black">写真</label>
                         <input type="file" onChange={(e) =>{ 
                             if(e.target.files && e.target.files[0]){
                                 setImageUrl(e.target.files[0])
                             }
-                        }}/>
+                        }} className="border border-black rounded-sm ml-2 text-center"/>
                     </div>
-                    <div className="item-name">
-                       <label>商品名</label> 
-                       <input type="text" value={itemname} onChange={(e) => setItemname(e.target.value)}/>
+                    <div className="p-2">
+                       <label className="text-black">商品名</label> 
+                       <input type="text" value={itemname} onChange={(e) => setItemname(e.target.value)} className="border border-black rounded-sm ml-2"/>
                     </div>
-                    <div className="item-category">
-                        <label>カテゴリー</label>
-                        <input type="text" value={category} onChange={(e) => setCategory(e.target.value)}/>
+                    <div className="p-2">
+                        <label className="text-black">カテゴリー</label>
+                        <input type="text" value={category} onChange={(e) => setCategory(e.target.value)} className="border border-black rounded-sm ml-2"/>
                     </div>
-                    <div className="item-brand">
-                        <label>ブランド</label>
-                        <input type="text" value={brand} onChange={(e) => setBrand(e.target.value)}/>
+                    <div className="p-2">
+                        <label className="text-black">ブランド</label>
+                        <input type="text" value={brand} onChange={(e) => setBrand(e.target.value)} className="border border-black rounded-sm ml-2"/>
                     </div>
-                    <div className="item-url">
-                        <label>商品URL</label>
-                        <input type="text" value={itemurl} onChange={(e) => setItemurl(e.target.value)}/>
+                    <div className="p-2">
+                        <label className="text-black">商品URL</label>
+                        <input type="text" value={itemurl} onChange={(e) => setItemurl(e.target.value)} className="border border-black rounded-sm ml-2"/>
                     </div>
-                    <button type="button" onClick={addItem} className="add-button">商品を追加</button>
+                    <button type="button" onClick={addItem} className="text-black px-3 border border-black rounded-sm ml-2">商品を追加</button>
                     <ul>
                         {items.map((item,index) => (
                             <li key={index}>{item.name}</li>
                         ))}
                     </ul>
 
-                    
-                    <button type="submit" className="submit-button">出品</button>
+                    <div className="flex justify-center items-center">
+                        <button type="submit" className="text-gray-50 font-bold px-3 rounded-2xl bg-sky-600  ml-2 mt-4 w-2xl h-10">出品</button>
+                    </div> 
                 </form>
             </div>
     )
