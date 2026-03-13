@@ -14,7 +14,7 @@ function App() {
                     <h1 className='text-5xl text-sky-600 text-center'>Croord Pick</h1>
                     <nav className='flex items-center'>
                         <Link to='/items' className='flex-1 text-center hover:text-sky-600 transition-colors duration-200 border p-5'>
-                            スタイリング一覧
+                            一覧
                         </Link>
                         <Link to='/register' className='flex-1 text-center hover:text-sky-600 transition-colors duration-200 border p-5'>
                             会員登録
