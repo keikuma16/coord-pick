@@ -44,12 +44,16 @@ return(
             <h2 className="text-2xl font-bold text-gray-800 text-center pb-4">
                 新規会員登録
             </h2>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                 {/* ユーザー名入力 */}
-                <label className="mr-2">ユーザー名</label>
-                <input type='text' value={username} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)} className="border border-black rounded-sm"/>
+                <div className="flex flex-col sm:flex-row sm:items-center">
+                    <label className="mr-2 sm:w-24 shrink-0">ユーザー名</label>
+                    <input type='text' value={username} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)} className="border border-black rounded-sm grow min-w-0"/>
+                </div>
                 {/* 登録 */}
-                <button type="submit" className="ml-10 border border-black rounded-sm px-2">新規登録</button>
+                <div className="flex justify-center">
+                    <button type="submit" className="border border-black rounded-sm px-2">新規登録</button>
+                </div>
             </form>
         </div>
     </div>
