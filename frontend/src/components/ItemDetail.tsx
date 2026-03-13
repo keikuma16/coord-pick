@@ -70,7 +70,6 @@ export const ItemDetail = () => {
                         <dt className="text-center">カテゴリー:{item.item_category}</dt>                                
                         <dd className="text-center">ブランド:{item.item_brand}</dd>
                         <dd className="text-center">商品名:{item.item_name}</dd>
-                        <dd className="text-center">説明:{styling.styling_explanation}</dd>
                         <dd className="text-center">URL:<a href={item.item_url}>商品を見る</a>
                         </dd>
                     </dl>
