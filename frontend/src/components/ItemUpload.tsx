@@ -72,32 +72,32 @@ export const ItemUpload = () => {
             <form onSubmit={handleSubmit} className="bg-gray-50 rounded-2xl p-3 w-full max-w-xl my-auto">
                 <h2 className="text-center text-2xl text-black font-bold">投稿</h2>
                     <div className="p-2 flex items-center">
-                        <label className="text-black">Styling説明</label>
-                        <input type="text" value={explanation} onChange={(e) => setExplanation(e.target.value)} className="border border-blackborder rounded-sm ml-2"/>
+                        <label className="text-black w-24 shrink-0">Styling説明</label>
+                        <input type="text" value={explanation} onChange={(e) => setExplanation(e.target.value)} className="grow border border-blackborder rounded-sm ml-2"/>
                     </div>
                     <div className="p-2 flex items-center">
-                        <label className="text-black">写真</label>
+                        <label className="text-black w-24 shrink-0">写真</label>
                         <input type="file" onChange={(e) =>{ 
                             if(e.target.files && e.target.files[0]){
                                 setImageUrl(e.target.files[0])
                             }
-                        }} className="border border-black rounded-sm ml-2 min-w-0"/>
+                        }} className="grow border border-black rounded-sm ml-2 min-w-0"/>
                     </div>
                     <div className="p-2 flex items-center">
-                       <label className="text-black">商品名</label> 
-                       <input type="text" value={itemname} onChange={(e) => setItemname(e.target.value)} className="border border-black rounded-sm ml-2"/>
+                       <label className="text-black w-24 shrink-0">商品名</label> 
+                       <input type="text" value={itemname} onChange={(e) => setItemname(e.target.value)} className="grow border border-black rounded-sm ml-2"/>
                     </div>
                     <div className="p-2 flex items-center">
-                        <label className="text-black">カテゴリー</label>
-                        <input type="text" value={category} onChange={(e) => setCategory(e.target.value)} className="border border-black rounded-sm ml-2"/>
+                        <label className="text-black w-24 shrink-0">カテゴリー</label>
+                        <input type="text" value={category} onChange={(e) => setCategory(e.target.value)} className="grow border border-black rounded-sm ml-2"/>
                     </div>
                     <div className="p-2 flex items-center">
-                        <label className="text-black">ブランド</label>
-                        <input type="text" value={brand} onChange={(e) => setBrand(e.target.value)} className="border border-black rounded-sm ml-2"/>
+                        <label className="text-black w-24 shrink-0">ブランド</label>
+                        <input type="text" value={brand} onChange={(e) => setBrand(e.target.value)} className="grow border border-black rounded-sm ml-2"/>
                     </div>
                     <div className="p-2 flex items-center">
-                        <label className="text-black">商品URL</label>
-                        <input type="text" value={itemurl} onChange={(e) => setItemurl(e.target.value)} className="border border-black rounded-sm ml-2"/>
+                        <label className="text-black w-24 shrink-0">商品URL</label>
+                        <input type="text" value={itemurl} onChange={(e) => setItemurl(e.target.value)} className="grow border border-black rounded-sm ml-2"/>
                     </div>
                     <button type="button" onClick={addItem} className="text-black px-3 border border-black rounded-sm ml-2">商品を追加</button>
                     <ul>
