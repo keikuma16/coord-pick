@@ -30,6 +30,7 @@ npm run dev
 ### Frontend
 - **Typescript**:型定義による安全性の向上のため。
 - **React (Vite)**:開発スピードとビルドパフォーマンスを重視し、Viteを採用。
+- **TailwindCSS**
 - **Axios**
 
 ### Infrastructure / Tools
@@ -48,7 +49,7 @@ npm run dev
 ├── frontend         
 │   ├── src
 │   │   ├── components 
-│   │   └── App.jsx    
+│   │   └── App.tsx    
 │   └── index.html
 └── README.md
 ```
