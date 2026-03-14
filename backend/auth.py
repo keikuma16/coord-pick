@@ -14,15 +14,15 @@ def hash_password(password: str):
 def verify_password(password: str, hashed: str):
     return password_hash.verify(password, hashed)
 
-def create_accestoken(data: dict):
+def create_acces_token(data: dict):
     payload = data.copy()
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     payload['exp'] = expire
 
-    token = jwt.encode(payload, SECRET_KEY, algorithm=(ALGORITHM))
+    token = jwt.encode(payload, SECRET_KEY, algorithms=(ALGORITHM))
     return token
 
 def decode_token(token: str):
-    payload = jwt.decode(token, SECRET_KEY, algorithm=[ALGORITHM])
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     return payload
 

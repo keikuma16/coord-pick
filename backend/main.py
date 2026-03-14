@@ -1,7 +1,7 @@
-from fastapi import FastAPI, Depends, Form, File, UploadFile
+from fastapi import FastAPI, Depends, Form, File, UploadFile, HTTPException
 from typing import List
 from sqlalchemy.orm import Session, joinedload
-import schemas, models
+import schemas, models, auth
 from db import SessionLocal 
 from fastapi.middleware.cors import CORSMiddleware
 import os
@@ -51,7 +51,9 @@ app.add_middleware(
 @app.post("/users")
 async def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     new_user = models.User(
-        user_name = user.user_name
+        user_name = user.user_name,
+        password = auth.hash_password(user.password),
+        email = user.email
     )
     db.add(new_user)
     db.commit()
@@ -119,9 +121,24 @@ async def delete_styling(styling_id: int, db:Session = Depends(get_db)):
     styling = db.query(models.Styling).filter(models.Styling.styling_id == styling_id).first()
 
     if styling is None:
-        return{"message":"投稿が存在しません"}
+        raise HTTPException(status_code=404, detail="投稿が存在しません")
 
     db.delete(styling)
     db.commit()
     return styling
 
+@app.post("/login")
+async def login(email: str, password: str, db:Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == email).firsr()
+
+    if user is None:
+        raise HTTPException(status_code=404, detail="userが存在しません")
+    
+    if auth.verify_password(password, user.password):
+        raise HTTPException(status_code=404)
+    
+    token = auth.create_acces_token({
+        "user_id" : user.user_id
+    })
+
+    return {"acces_token":token}
