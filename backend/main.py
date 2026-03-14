@@ -129,15 +129,15 @@ async def delete_styling(styling_id: int, db:Session = Depends(get_db)):
 
 @app.post("/login")
 async def login(email: str, password: str, db:Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.email == email).firsr()
+    user = db.query(models.User).filter(models.User.email == email).first()
 
     if user is None:
         raise HTTPException(status_code=404, detail="userが存在しません")
     
-    if auth.verify_password(password, user.password):
+    if not auth.verify_password(password, user.password):
         raise HTTPException(status_code=404)
     
-    token = auth.create_acces_token({
+    token = auth.create_access_token({
         "user_id" : user.user_id
     })
 
