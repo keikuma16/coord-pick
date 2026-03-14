@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field
 
 class UserCreate(BaseModel):
     user_name: str
+    email: str
+    password: str
 
 class User(UserCreate):
     user_id: int
