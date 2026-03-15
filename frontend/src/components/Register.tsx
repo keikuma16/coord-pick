@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 export const Register = () => {
     const navigate = useNavigate();
     const [username, setUsername] = useState<string>('');
+    const [email, setEmail] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if(username == ''){
@@ -45,10 +47,17 @@ return(
                 新規会員登録
             </h2>
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                {/* ユーザー名入力 */}
                 <div className="flex flex-col sm:flex-row sm:items-center">
                     <label className="mr-2 sm:w-24 shrink-0">ユーザー名</label>
                     <input type='text' value={username} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)} className="border border-black rounded-sm grow min-w-0"/>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:items-center">
+                    <label className="mr-2 sm:w-24 shrink-0">メールアドレス</label>
+                    <input type='text' value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} className="border border-black rounded-sm grow min-w-0"/>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:items-center">
+                    <label className="mr-2 sm:w-24 shrink-0">パスワード</label>
+                    <input type='text' value={password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} className="border border-black rounded-sm grow min-w-0"/>
                 </div>
                 {/* 登録 */}
                 <div className="flex justify-center">
