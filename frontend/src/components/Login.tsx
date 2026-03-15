@@ -38,6 +38,7 @@ export const Login = () => {
                 <label>パスワード</label>
                 <input type="password" value={password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} />
             </div>
+            <button type="submit">ログイン</button>
         </form>
     </div>
  );
