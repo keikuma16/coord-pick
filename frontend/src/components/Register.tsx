@@ -15,6 +15,8 @@ export const Register = () => {
         //APIにデータを送る
         const requestData = {
             'user_name':username,
+            'email': email,
+            'password': password
         }
         try{
             const request = await fetch('https://fastapi-demo-y2bu.onrender.com/users',{
