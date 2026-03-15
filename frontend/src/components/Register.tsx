@@ -12,19 +12,18 @@ export const Register = () => {
             alert('ユーザー名を入力してください')
         }
         console.log('ユーザー登録完了');
-        //APIにデータを送る
-        const requestData = {
-            'user_name':username,
-            'email': email,
-            'password': password
-        }
+        
         try{
             const request = await fetch('https://fastapi-demo-y2bu.onrender.com/users',{
                 method:'POST',
                 headers:{
                     'Content-Type':'application/json',
                 },
-                body: JSON.stringify(requestData),
+                body: JSON.stringify({
+                    user_name:username,
+                    email: email,
+                password: password
+                }),
             })
             if(request.ok){
                 const res = await request.json();
