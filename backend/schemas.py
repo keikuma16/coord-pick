@@ -2,8 +2,6 @@ from pydantic import BaseModel, Field
 
 class UserCreate(BaseModel):
     user_name: str
-    email: str
-    password: str
 
 class User(UserCreate):
     user_id: int
@@ -24,7 +22,7 @@ class Item(ItemCreate):
         
 class StylingCreate(BaseModel):
     styling_explanation: str
-    styling_item_img:str
+    styling_item_img: str
 
 class Styling(StylingCreate):
     styling_id: int
@@ -34,3 +32,13 @@ class Styling(StylingCreate):
 
     class Config:
         orm_mode = True
+
+
+class LoginCreate(BaseModel):
+    email: str
+
+class Login(LoginCreate):
+    password:str
+
+    class Config:
+        orm_model = True
