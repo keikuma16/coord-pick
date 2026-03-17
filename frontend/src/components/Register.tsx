@@ -14,7 +14,7 @@ export const Register = () => {
         console.log('ユーザー登録完了');
         
         try{
-            const request = await fetch('https://fastapi-demo-y2bu.onrender.com/users',{
+            const request = await fetch('https://coord-pick.onrender.com/users',{
                 method:'POST',
                 headers:{
                     'Content-Type':'application/json',
