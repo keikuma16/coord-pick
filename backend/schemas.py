@@ -14,7 +14,7 @@ class UserLogin(BaseModel):
 class User(UserCreate):
     user_id: int
     class Config:
-        orm_mode: True
+        from_attributes = True
 class ItemCreate(BaseModel):
     item_name: str
     item_brand: str
@@ -23,7 +23,7 @@ class ItemCreate(BaseModel):
 class Item(ItemCreate):
     item_id: int
     class Config:
-        orm_mode = True
+        from_attributes = True
 
         
 class StylingCreate(BaseModel):
@@ -37,5 +37,5 @@ class Styling(StylingCreate):
     items: list[Item]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
