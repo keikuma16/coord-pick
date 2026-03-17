@@ -1,8 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 export const Login = () => {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
+    const navigate = useNavigate();
  const handleLogin = async(e: React.FormEvent) => {
     e.preventDefault();
     try{
@@ -20,6 +22,7 @@ export const Login = () => {
         const token = data.acess_token;
         localStorage.setItem("token", token);
         alert('ログインに成功し ました');
+        navigate('/');
     }
     catch(error: any){
         alert(error.res?.data?.detail || 'ログイン失敗');
