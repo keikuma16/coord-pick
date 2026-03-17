@@ -6,7 +6,7 @@ export const Login = () => {
  const handleLogin = async(e: React.FormEvent) => {
     e.preventDefault();
     try{
-        const res = await fetch (`https://fastapi-demo-y2bu.onrender.com/login`,{
+        const res = await fetch (`https://coord-pick.vercel.app/login`,{
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', 
