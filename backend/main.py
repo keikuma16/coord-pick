@@ -65,6 +65,7 @@ async def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 async def users_read(db: Session = Depends(get_db)):
     users = db.query(models.User).all()
     return users
+
 #Stylingの登録
 @app.post("/upload")
 async def styling_create(
@@ -133,7 +134,7 @@ async def delete_styling(styling_id: int, db:Session = Depends(get_db)):
     return styling
 
 @app.post("/login") 
-async def login(user: schemas.User, db:Session = Depends(get_db)):
+async def login(user: schemas.UserLogin, db:Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
 
     if db_user is None:
