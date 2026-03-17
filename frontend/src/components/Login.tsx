@@ -6,7 +6,7 @@ export const Login = () => {
  const handleLogin = async(e: React.FormEvent) => {
     e.preventDefault();
     try{
-        const res = await fetch (`https://coord-pick.vercel.app/login`,{
+        const res = await fetch (`https://coord-pick.onrender.com/login`,{
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', 
