@@ -19,8 +19,8 @@ export const Login = () => {
             })
         });
         const data = await res.json();
-        const token = data.acess_token;
-        localStorage.setItem("token", token);
+        const token = data.access_token;
+        localStorage.setItem("access_token", token);
         alert('ログインに成功し ました');
         navigate('/');
     }

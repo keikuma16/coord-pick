@@ -34,6 +34,7 @@ export const ItemUpload = () => {
 
         try{
             const token = localStorage.getItem("access_token");
+            console.log("確認用トークン:", token);
             const res = await fetch(`https://coord-pick.onrender.com/upload`, {
                 method:'POST',
                 headers: {
