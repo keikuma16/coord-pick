@@ -34,7 +34,7 @@ export const ItemUpload = () => {
 
         try{
             const token = localStorage.getItem("access_token");
-            const res = await fetch(`https://fastapi-demo-y2bu.onrender.com/upload`, {
+            const res = await fetch(`https://coord-pick.onrender.com/upload`, {
                 method:'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
