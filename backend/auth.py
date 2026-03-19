@@ -31,7 +31,7 @@ def create_access_token(data: dict):
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     payload['exp'] = expire
 
-    token = jwt.encode(payload, SECRET_KEY, algorithms=(ALGORITHM))
+    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
     return token
 
 def decode_token(token: str):
@@ -42,6 +42,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     payload = decode_token(token)
-    user = db.query(models.User).filter(models.User.email == payload.get("user_id")).first()
+    user = db.query(models.User).filter(models.User.user_id == payload.get("user_id")).first()
     return user
 
