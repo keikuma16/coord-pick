@@ -4,8 +4,15 @@ from datetime import datetime, timedelta
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from main import get_db
+from db import SessionLocal
 import models
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 SECRET_KEY = '0806690554d9fb8ab2d2e4b08c068b0bfdf2b4f2ded34ad6a61dfe204ac4ed38'
 ALGORITHM = "HS256"

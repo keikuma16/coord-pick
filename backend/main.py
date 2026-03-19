@@ -72,7 +72,8 @@ async def styling_create(
     styling_explanation:str = Form(...),
     styling_item_img:UploadFile = File(...),
     items: str = Form(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_user)
 ):
     item_list = json.loads(items)
 
@@ -87,7 +88,7 @@ async def styling_create(
     new_styling=models.Styling(
         styling_explanation = styling_explanation,
         styling_item_img = img_url,
-        user_id = user_id
+        user_id = current_user.user_id
     )
 
     db.add(new_styling)
