@@ -86,7 +86,8 @@ async def styling_create(
 
     new_styling=models.Styling(
         styling_explanation = styling_explanation,
-        styling_item_img = img_url
+        styling_item_img = img_url,
+        user_id = user_id
     )
 
     db.add(new_styling)

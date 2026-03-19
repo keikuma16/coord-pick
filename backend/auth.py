@@ -1,6 +1,11 @@
 import jwt
 from pwdlib import PasswordHash
 from datetime import datetime, timedelta
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
+from main import get_db
+import models
 
 SECRET_KEY = '0806690554d9fb8ab2d2e4b08c068b0bfdf2b4f2ded34ad6a61dfe204ac4ed38'
 ALGORITHM = "HS256"
@@ -25,4 +30,11 @@ def create_access_token(data: dict):
 def decode_token(token: str):
     payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     return payload
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    payload = decode_token(token)
+    user = db.query(models.User).filter(models.User.email == payload.get("user_id")).first()
+    return user
 
