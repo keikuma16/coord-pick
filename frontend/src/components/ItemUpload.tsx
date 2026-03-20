@@ -42,12 +42,17 @@ export const ItemUpload = () => {
                 },
                 body: formData
             });
-
-            if(res.ok){
-                alert('出品が完了しました');
-                console.log(res.json());
-                navigate('/');
+            
+            if(!res.ok){
+                if(res.status === 401){
+                    alert('ログインをしてください');
+                    navigate('/login');
+                }
+                alert('出品できませんでした');
             }
+            alert('出品が完了しました');
+            console.log(res.json());
+            navigate('/');
         }
         catch(error){
             alert('出品できませんでした');
