@@ -149,4 +149,4 @@ async def login(user: schemas.UserLogin, db:Session = Depends(get_db)):
         "user_id" : db_user.user_id
     })
 
-    return {"access_token": token}
+    return {"access_token": str(token)}
