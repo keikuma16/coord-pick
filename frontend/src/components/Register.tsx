@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 
 export const Register = () => {
     const navigate = useNavigate();
@@ -33,7 +33,7 @@ export const Register = () => {
                 navigate('/items')
             }else{
                 console.error('登録失敗');
-                alert('登録に失敗しました')
+                alert(data || '登録に失敗しました')
             }
         }
         catch(error){

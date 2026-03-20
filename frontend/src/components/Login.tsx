@@ -5,9 +5,8 @@ export const Login = () => {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
     const navigate = useNavigate();
- const handleLogin = async(e: React.FormEvent) => {
-    e.preventDefault();
-    try{
+    const handleLogin = async(e: React.FormEvent) => {
+        e.preventDefault();
         const res = await fetch (`https://coord-pick.onrender.com/login`,{
             method: 'POST',
             headers: {
@@ -19,14 +18,15 @@ export const Login = () => {
             })
         });
         const data = await res.json();
-        const token = data.access_token;
-        localStorage.setItem("access_token", token);
-        alert('ログインに成功し ました');
-        navigate('/');
-    }
-    catch(error: any){
-        alert(error.res?.data?.detail || 'ログイン失敗');
-    }
+        if(!res.ok){
+            alert(data.detail || 'ログイン失敗');
+            return;
+        }
+
+    const token = data.access_token;
+    localStorage.setItem("access_token", token);
+    alert('ログイン成功');
+    navigate('/');
  }
 
  return(
