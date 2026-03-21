@@ -43,11 +43,12 @@ export const ItemUpload = () => {
                 body: formData
             });
             
+            if(res.status === 401){
+                alert('ログインをしてください');
+                navigate('/login');
+                return;
+            }
             if(!res.ok){
-                if(res.status === 401){
-                    alert('ログインをしてください');
-                    navigate('/login');
-                }
                 alert('出品できませんでした');
             }
             alert('出品が完了しました');
