@@ -81,7 +81,7 @@ async def styling_create(
         styling_item_img.file.read(),
         folder="coordpick",
         resource_type="image"
-)
+    )
     
     img_url = upload_result.get("secure_url")
 

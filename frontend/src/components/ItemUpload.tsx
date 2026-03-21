@@ -45,6 +45,7 @@ export const ItemUpload = () => {
             
             if(res.status === 401){
                 alert('ログインをしてください');
+                localStorage.removeItem("access_token");
                 navigate('/login');
                 return;
             }

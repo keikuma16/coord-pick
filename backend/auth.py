@@ -1,7 +1,7 @@
 import jwt
 from pwdlib import PasswordHash
 from datetime import datetime, timedelta
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from db import SessionLocal
@@ -41,7 +41,12 @@ def decode_token(token: str):
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    payload = decode_token(token)
+    try:
+        payload = decode_token(token)
+    except Exception:
+        raise HTTPException(status_code=401, detail="有効なtokenではありません")
     user = db.query(models.User).filter(models.User.user_id == payload.get("user_id")).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="ログインしてください")
     return user
 
