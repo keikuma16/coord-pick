@@ -58,9 +58,8 @@ return(
                 </div>
                 <div className="flex flex-col sm:flex-row sm:items-center">
                     <label className="mr-2 sm:w-24 shrink-0">パスワード</label>
-                    <input type='text' value={password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} className="border border-black rounded-sm grow min-w-0"/>
+                    <input type='password' value={password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} className="border border-black rounded-sm grow min-w-0"/>
                 </div>
-                {/* 登録 */}
                 <div className="flex justify-center">
                     <button type="submit" className="border border-black rounded-sm px-2">新規登録</button>
                 </div>
