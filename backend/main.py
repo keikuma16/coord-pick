@@ -11,8 +11,6 @@ from db import engine, SessionLocal, Base
 import cloudinary
 import cloudinary.uploader 
 
-
-models.Base.metadata.drop_all(bind=engine)
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
