@@ -7,6 +7,8 @@ class User(Base):
 
     user_id = Column(Integer, primary_key=True, index=True)
     user_name = Column(String, unique=True, index=True)
+    email = Column(String, unique=True, index=True)
+    password = Column(String, index=True)
     stylings = relationship('Styling', back_populates='creator')
 
 class Styling(Base):

@@ -2,6 +2,7 @@ import './index.css'
 import { Register } from './components/Register.js'
 import { ItemList } from './components/ItemList.js'
 import { ItemUpload } from './components/ItemUpload.js'
+import { Login } from './components/Login.js'
 import { BrowserRouter, Routes, Route, Link} from 'react-router-dom'
 import { ItemDetail } from './components/ItemDetail.js'
 
@@ -22,6 +23,9 @@ function App() {
                         <Link to='/upload' className='flex-1 text-center hover:text-sky-600 transition-colors duration-200 border p-5'>
                             投稿
                         </Link>
+                        <Link to='/login' className='flex-1 text-center hover:text-sky-600 transition-colors duration-200 border p-5'>
+                            ログイン
+                        </Link>
                     </nav>
                 </header>
                 
@@ -30,6 +34,7 @@ function App() {
                     <Route path='/register' element={<Register/>}/>
                     <Route path='/upload' element={<ItemUpload/>}/>
                     <Route path='/items' element={<ItemList/>}/>
+                    <Route path='/login' element={<Login/>}/>
                     <Route path='/detail/:styling_id' element={<ItemDetail />}/>
                 </Routes>      
             </div>

@@ -33,16 +33,28 @@ export const ItemUpload = () => {
         formData.append('items', JSON.stringify(items));
 
         try{
-            const res = await fetch(`https://fastapi-demo-y2bu.onrender.com/upload`, {
+            const token = localStorage.getItem("access_token");
+            console.log("確認用トークン:", token);
+            const res = await fetch(`https://coord-pick.onrender.com/upload`, {
                 method:'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
                 body: formData
             });
-
-            if(res.ok){
-                alert('出品が完了しました');
-                console.log(res.json());
-                navigate('/');
+            
+            if(res.status === 401){
+                alert('ログインをしてください');
+                localStorage.removeItem("access_token");
+                navigate('/login');
+                return;
             }
+            if(!res.ok){
+                alert('出品できませんでした');
+            }
+            alert('出品が完了しました');
+            console.log(res.json());
+            navigate('/');
         }
         catch(error){
             alert('出品できませんでした');
