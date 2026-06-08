@@ -1,70 +1,106 @@
 import React, { useState } from "react"
-import { data, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../api";
 
 export const Register = () => {
     const navigate = useNavigate();
     const [username, setUsername] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+    const [errorMessage, setErrorMessage] = useState<string>('');
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if(username == ''){
-            alert('ユーザー名を入力してください')
+        setErrorMessage('');
+        if (username.trim() === '') {
+            setErrorMessage('ユーザー名を入力してください。');
+            return;
         }
-        console.log('ユーザー登録完了');
-        
-        try{
-            const request = await fetch('https://coord-pick.onrender.com/users',{
-                method:'POST',
-                headers:{
-                    'Content-Type':'application/json',
+        if (email.trim() === '') {
+            setErrorMessage('メールアドレスを入力してください。');
+            return;
+        }
+        if (password.trim() === '') {
+            setErrorMessage('パスワードを入力してください。');
+            return;
+        }
+
+        try {
+            const request = await fetch(`${API_BASE_URL}/users`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    user_name:username,
+                    user_name: username,
                     email: email,
-                password: password
+                    password: password
                 }),
             })
-            if(request.ok){
-                const res = await request.json();
-                console.log('登録完了', res);
-                alert('登録が完了しました');
-                console.log(res)
-                navigate('/items')
-            }else{
-                console.error('登録失敗');
-                alert(data || '登録に失敗しました')
+            if (request.ok) {
+                navigate('/items');
+            } else {
+                const data = await request.json();
+                setErrorMessage(data.detail || '登録に失敗しました。');
             }
         }
-        catch(error){
+        catch (error) {
             console.error('通信エラー', error);
+            setErrorMessage('通信エラーが発生しました。');
         }
-        
     }
-return(
-    <div className="min-h-[70vh] flex items-center justify-center px-4">
-        <div  className="w-full max-w-md bg-white p-8 rounded-2xl">
-            <h2 className="text-2xl font-bold text-gray-800 text-center pb-4">
-                新規会員登録
-            </h2>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                <div className="flex flex-col sm:flex-row sm:items-center">
-                    <label className="mr-2 sm:w-24 shrink-0">ユーザー名</label>
-                    <input type='text' value={username} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)} className="border border-black rounded-sm grow min-w-0"/>
+
+    return (
+        <div className="mx-auto flex min-h-[70vh] max-w-5xl items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
+            <div className="w-full rounded-[2rem] bg-white p-8 shadow-xl ring-1 ring-slate-200 sm:p-10">
+                <div className="mb-8 text-center">
+                    <p className="text-sm font-semibold uppercase tracking-[0.3em] text-sky-600">新規会員登録</p>
+                    <h2 className="mt-4 text-3xl font-bold text-slate-900">CoordPick に参加する</h2>
+                    <p className="mt-3 text-slate-600">アカウントを作成して、投稿と共有を始めましょう。</p>
                 </div>
-                <div className="flex flex-col sm:flex-row sm:items-center">
-                    <label className="mr-2 sm:w-24 shrink-0">メールアドレス</label>
-                    <input type='text' value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} className="border border-black rounded-sm grow min-w-0"/>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center">
-                    <label className="mr-2 sm:w-24 shrink-0">パスワード</label>
-                    <input type='password' value={password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} className="border border-black rounded-sm grow min-w-0"/>
-                </div>
-                <div className="flex justify-center">
-                    <button type="submit" className="border border-black rounded-sm px-2">新規登録</button>
-                </div>
-            </form>
+
+                {errorMessage && (
+                    <div className="mb-6 rounded-3xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                        {errorMessage}
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                        <label className="text-sm font-semibold text-slate-700">ユーザー名</label>
+                        <input
+                            type='text'
+                            value={username}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
+                            className="mt-3 w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                            placeholder="例: fashion_lover"
+                        />
+                    </div>
+                    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                        <label className="text-sm font-semibold text-slate-700">メールアドレス</label>
+                        <input
+                            type='text'
+                            value={email}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                            className="mt-3 w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                            placeholder="example@mail.com"
+                        />
+                    </div>
+                    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                        <label className="text-sm font-semibold text-slate-700">パスワード</label>
+                        <input
+                            type='password'
+                            value={password}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                            className="mt-3 w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                            placeholder="********"
+                        />
+                    </div>
+                    <button type="submit" className="w-full rounded-full bg-sky-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:bg-sky-700">
+                        新規登録
+                    </button>
+                </form>
+            </div>
         </div>
-    </div>
-)
+    )
 }

@@ -23,16 +23,20 @@ def get_db():
         db.close()
 
 cloudinary.config( 
-  cloud_name = "dlyq2rrc3", 
-  api_key = "929797163953452", 
-  api_secret = "yiAZra0JV9OTWdSe2OuigjTxd0s",
+  cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME"),
+  api_key = os.getenv("CLOUDINARY_API_KEY"),
+  api_secret = os.getenv("CLOUDINARY_API_SECRET"),
   secure = True
 )
 
 #CORSエラーの解除
 origins = [
-    "http://localhost:5173",
-    "https://coord-pick.vercel.app"
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ORIGINS",
+        "http://localhost:5173,https://coord-pick.vercel.app",
+    ).split(",")
+    if origin.strip()
 ]
 
 app.add_middleware(
@@ -73,6 +77,14 @@ async def styling_create(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth.get_current_user)
 ):
+    # 画像のみ受け付ける
+    allowed_types = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+    if styling_item_img.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400,
+            detail="画像ファイルのみアップロードできます。jpeg, png, gif, webp のみ対応しています。"
+        )
+
     item_list = json.loads(items)
 
     upload_result = cloudinary.uploader.upload(
@@ -122,16 +134,33 @@ async def get_styling_detail(styling_id: int, db: Session = Depends(get_db)):
 
     return styling
 
-@app.delete("/delete/{styling_id}")
-async def delete_styling(styling_id: int, db:Session = Depends(get_db)):
+def remove_styling_with_items(styling: models.Styling, db: Session):
+    db.query(models.Item).filter(models.Item.styling_id == styling.styling_id).delete()
+    db.delete(styling)
+    db.commit()
+    return styling
+
+@app.delete("/stylings/{styling_id}")
+async def delete_styling(styling_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
     styling = db.query(models.Styling).filter(models.Styling.styling_id == styling_id).first()
 
     if styling is None:
         raise HTTPException(status_code=404, detail="投稿が存在しません")
+    if styling.user_id != current_user.user_id:
+        raise HTTPException(status_code=403, detail="他人の投稿は削除できません")
 
-    db.delete(styling)
-    db.commit()
-    return styling
+    return remove_styling_with_items(styling, db)
+
+@app.delete("/delete/{styling_id}")
+async def delete_styling_legacy(styling_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    styling = db.query(models.Styling).filter(models.Styling.styling_id == styling_id).first()
+
+    if styling is None:
+        raise HTTPException(status_code=404, detail="投稿が存在しません")
+    if styling.user_id != current_user.user_id:
+        raise HTTPException(status_code=403, detail="他人の投稿は削除できません")
+
+    return remove_styling_with_items(styling, db)
 
 @app.post("/login") 
 async def login(user: schemas.UserLogin, db:Session = Depends(get_db)):

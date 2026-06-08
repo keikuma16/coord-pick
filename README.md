@@ -1,5 +1,18 @@
 # CoordPick
 
+## Docker
+```bash
+copy .env.example .env
+docker compose up --build
+```
+
+- Frontend: http://localhost:8080
+- Backend API: http://localhost:8000
+- API docs: http://localhost:8000/docs
+
+`.env` の `CLOUDINARY_*` と `SECRET_KEY` は自分の値に置き換えてください。
+`SECRET_KEY` が未設定、または `change-me` のままだとバックエンドは起動しません。
+
 SNS（TikTok/Instagram等）のコメント欄で頻発する「購入先が分からない」という課題を解決するための、ファッション特定・共有プラットフォームです。
 
 ## URL
@@ -13,6 +26,8 @@ cd backend
 pip install -r requirements.txt
 uvicorn main:app --reload
 ```
+
+- `/upload` エンドポイントは画像ファイルのみ受け付けます。
 
 ### Frontend
 ```bash

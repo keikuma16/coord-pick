@@ -1,4 +1,5 @@
 import jwt
+import os
 from pwdlib import PasswordHash
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException
@@ -14,7 +15,12 @@ def get_db():
     finally:
         db.close()
 
-SECRET_KEY = '0806690554d9fb8ab2d2e4b08c068b0bfdf2b4f2ded34ad6a61dfe204ac4ed38'
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY or SECRET_KEY == "change-me":
+    raise RuntimeError(
+        "SECRET_KEY environment variable is required and must not be 'change-me'. "
+        "Set a strong secret in .env or your deployment environment."
+    )
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
