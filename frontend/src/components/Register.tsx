@@ -4,7 +4,7 @@ import { API_BASE_URL } from "../api";
 
 export const Register = () => {
     const navigate = useNavigate();
-    const [username, setUsername] = useState<string>('');
+    const [username, setUsername] = useState<string>('太郎');
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState<string>('');
@@ -73,7 +73,7 @@ export const Register = () => {
                             value={username}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
                             className="mt-3 w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-                            placeholder="例: fashion_lover"
+                            placeholder="例: 太郎"
                         />
                     </div>
                     <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
