@@ -1,5 +1,18 @@
 # CoordPick
 
+SNS（TikTok/Instagram等）のコメント欄で頻発する「購入先が分からない」という課題を解決するための、ファッション特定・共有プラットフォームです。
+コーディネート写真とアイテムごとの購入先URLをセットで投稿することで、見る人がすぐに欲しいアイテムにたどり着けます。
+
+## URL
+https://coord-pick.vercel.app
+
+## 機能一覧
+- ユーザー登録・ログイン（JWT認証）
+- コーディネート画像とアイテム情報（アイテム名・ブランド・カテゴリ・購入先URL）の投稿
+- 投稿の一覧表示・詳細表示
+- 自分が投稿した内容の削除（他人の投稿は削除不可）
+- 画像はCloudinaryにアップロードし、CDN経由で配信
+
 ## Docker
 ```bash
 copy .env.example .env
@@ -13,12 +26,7 @@ docker compose up --build
 `.env` の `CLOUDINARY_*` と `SECRET_KEY` は自分の値に置き換えてください。
 `SECRET_KEY` が未設定、または `change-me` のままだとバックエンドは起動しません。
 
-SNS（TikTok/Instagram等）のコメント欄で頻発する「購入先が分からない」という課題を解決するための、ファッション特定・共有プラットフォームです。
-
-## URL
-https://coord-pick.vercel.app
-
-##起動手順
+## 起動手順（Dockerを使わない場合）
 
 ### Backend
 ```bash
@@ -36,36 +44,50 @@ npm install
 npm run dev
 ```
 
+### テストの実行
+```bash
+cd backend
+pip install -r requirements-dev.txt
+pytest
+```
+
 ## 技術スタックと技術選定理由
 ### Backend
 - **Python / FastAPI**:高速かつ型安全なAPI開発のため採用
 - **SQLAlchemy**
 - **Uvicorn**
+- **pytest**:APIの認可・認証・情報漏えい防止の回帰テストに使用
 
 ### Frontend
-- **Typescript**:型定義による安全性の向上のため。
+- **TypeScript**:型定義による安全性の向上のため。
 - **React (Vite)**:開発スピードとビルドパフォーマンスを重視し、Viteを採用。
+- **React Router**:ページ遷移の管理に使用
 - **TailwindCSS**
 - **Axios**
 
 ### Infrastructure / Tools
 - **Cloudinary**:画像データの最適化配信・クラウド管理のため導入。
-- **Vercel**
+- **Vercel**（フロントエンド）/ **Render**（バックエンドAPI）
+- **GitHub Actions**:push・PR時にbackendのテストとfrontendのlint/buildを自動実行
+- **Docker / docker compose**:ローカル環境の再現性を担保
 - **Git / GitHub**
 
 ## ディレクトリ構成
 ```bash
 .
-├── backend        
-│   ├── main.py    
-│   ├── models.py
-│   ├── schemas.py   
-│   └── database.py  
-├── frontend         
+├── backend
+│   ├── main.py      # APIエンドポイント
+│   ├── models.py    # SQLAlchemyモデル
+│   ├── schemas.py   # Pydanticスキーマ
+│   ├── auth.py       # JWT認証・パスワードハッシュ
+│   ├── db.py         # DB接続設定
+│   └── tests/        # pytestによるAPIテスト
+├── frontend
 │   ├── src
-│   │   ├── components 
-│   │   └── App.tsx    
+│   │   ├── components
+│   │   └── App.tsx
 │   └── index.html
+├── .github/workflows  # CI設定
 └── README.md
 ```
 
@@ -73,3 +95,13 @@ npm run dev
 - **型安全な設計**: FastAPIのPydanticモデルとSQLAlchemyを組み合わせ、堅牢でメンテナンス性の高いAPIを構築しました。
 - **効率的な画像管理**: サーバー負荷を軽減し、高速に画像を表示させるため、Cloudinaryを採用して画像管理基盤を構築しました。
 - **モダンな開発環境**: Viteを採用することで、開発体験の向上とビルドの高速化を図っています。
+- **セキュリティ**: パスワードはArgon2系アルゴリズムでハッシュ化、認可が必要なAPIはJWTで保護し、レスポンスに認証情報が含まれないようスキーマを分離しています。画像アップロードもContent-Typeだけでなくファイルの実バイナリを検証しています。
+
+## 今後の課題
+- フロントエンドのテスト（Vitest等）の追加
+- リフレッシュトークンの導入によるログイン維持期間の改善
+- 画像アップロード時のファイルサイズ上限・枚数制限のバリデーション追加
+- ページネーション（現状は全投稿を一括取得しているため、投稿数が増えると性能面で課題）
+
+## License
+MIT

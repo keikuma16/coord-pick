@@ -39,32 +39,31 @@ export const ItemDetail = () => {
     }
     const navigate = useNavigate();
     const [styling, setStyling] = useState<DetailStyling | null>(null);
-    const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+    const [currentUserId] = useState<number | null>(() => getUserIdFromToken());
     const { styling_id } = useParams();
-    
+
     useEffect(() => {
-        setCurrentUserId(getUserIdFromToken());
-    }, []);
-    
-    const get_data = async () => {
-        try{
-            const response = await fetch(`${API_BASE_URL}/detail/${styling_id}`)
-            if(response.ok){
-                const res = await response.json();
-                setStyling(res);
-                console.log('詳細表示完了',res);
-            }else{
-                console.log('詳細を表示できません');
+        let cancelled = false;
+
+        const fetchDetail = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/detail/${styling_id}`);
+                if (response.ok) {
+                    const res = await response.json();
+                    if (!cancelled) setStyling(res);
+                } else {
+                    console.log('詳細を表示できません');
+                }
+            } catch (error) {
+                console.error('通信エラー', error);
             }
-        }
-        catch(error){
-            console.error('通信エラー',error);
-        }
-    }
-    
-    useEffect (() => {
-        get_data();
-    },[styling_id])
+        };
+
+        fetchDetail();
+        return () => {
+            cancelled = true;
+        };
+    }, [styling_id]);
 
     const handleDelete = async(id: number) => {
         if(!window.confirm('本当に削除しますか？')) return;

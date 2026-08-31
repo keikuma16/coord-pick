@@ -24,6 +24,22 @@ def test_register_user_returns_public_fields_only():
     assert "email" not in body
 
 
+def test_register_duplicate_email_is_rejected():
+    payload = {
+        "user_name": "eve",
+        "email": "eve@example.com",
+        "password": "supersecret123",
+    }
+    first = client.post("/users", json=payload)
+    assert first.status_code == 200
+
+    duplicate = client.post(
+        "/users",
+        json={**payload, "user_name": "eve2"},
+    )
+    assert duplicate.status_code == 400
+
+
 def test_users_list_endpoint_is_removed():
     # 認証なしで全ユーザー(パスワードハッシュ含む)を取得できてしまう
     # 脆弱なエンドポイントは削除済みであることを確認する(POSTのみ存在するので405)
@@ -72,6 +88,30 @@ def _create_user_with_styling(user_name: str, email: str, password_hash: str) ->
         return styling.styling_id
     finally:
         db.close()
+
+
+def test_upload_rejects_content_type_spoofing():
+    client.post(
+        "/users",
+        json={
+            "user_name": "frank",
+            "email": "frank@example.com",
+            "password": "supersecret123",
+        },
+    )
+    login = client.post(
+        "/login", json={"email": "frank@example.com", "password": "supersecret123"}
+    )
+    token = login.json()["access_token"]
+
+    fake_image = b"this is not really an image, just plain text"
+    res = client.post(
+        "/upload",
+        headers={"Authorization": f"Bearer {token}"},
+        data={"styling_explanation": "test", "items": "[]"},
+        files={"styling_item_img": ("fake.png", fake_image, "image/png")},
+    )
+    assert res.status_code == 400
 
 
 def test_delete_styling_requires_authentication():

@@ -22,7 +22,22 @@ def get_db():
     finally:
         db.close()
 
-cloudinary.config( 
+IMAGE_MAGIC_SIGNATURES = {
+    b"\xff\xd8\xff": "image/jpeg",
+    b"\x89PNG\r\n\x1a\n": "image/png",
+    b"GIF87a": "image/gif",
+    b"GIF89a": "image/gif",
+}
+
+def detect_image_content_type(data: bytes):
+    for signature, content_type in IMAGE_MAGIC_SIGNATURES.items():
+        if data.startswith(signature):
+            return content_type
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "image/webp"
+    return None
+
+cloudinary.config(
   cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME"),
   api_key = os.getenv("CLOUDINARY_API_KEY"),
   api_secret = os.getenv("CLOUDINARY_API_SECRET"),
@@ -52,6 +67,10 @@ app.add_middleware(
 #Userの登録
 @app.post("/users", response_model=schemas.UserPublic)
 async def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    existing_user = db.query(models.User).filter(models.User.email == user.email).first()
+    if existing_user is not None:
+        raise HTTPException(status_code=400, detail="このメールアドレスは既に登録されています")
+
     new_user = models.User(
         user_name = user.user_name,
         password = auth.hash_password(user.password),
@@ -71,9 +90,16 @@ async def styling_create(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth.get_current_user)
 ):
-    # 画像のみ受け付ける
+    # 画像のみ受け付ける(Content-Typeは偽装可能なため、実際のファイル内容も検証する)
     allowed_types = ["image/jpeg", "image/png", "image/gif", "image/webp"]
     if styling_item_img.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400,
+            detail="画像ファイルのみアップロードできます。jpeg, png, gif, webp のみ対応しています。"
+        )
+
+    image_bytes = styling_item_img.file.read()
+    if detect_image_content_type(image_bytes) not in allowed_types:
         raise HTTPException(
             status_code=400,
             detail="画像ファイルのみアップロードできます。jpeg, png, gif, webp のみ対応しています。"
@@ -82,7 +108,7 @@ async def styling_create(
     item_list = json.loads(items)
 
     upload_result = cloudinary.uploader.upload(
-        styling_item_img.file.read(),
+        image_bytes,
         folder="coordpick",
         resource_type="image"
     )
