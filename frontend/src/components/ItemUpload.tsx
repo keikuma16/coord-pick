@@ -113,20 +113,9 @@ export const ItemUpload = () => {
     return (
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
             <div className="rounded-[2rem] bg-white p-6 shadow-xl ring-1 ring-slate-200 lg:p-10">
-                <div className="mb-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
-                    <div>
-                        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-sky-600">投稿フォーム</p>
-                        <h1 className="mt-4 text-3xl font-bold text-slate-900">あなただけのコーデをシェアしよう</h1>
-                        <p className="mt-3 text-slate-600 sm:text-lg">画像と商品情報を登録して、他のユーザーにコーディネートを届けましょう。</p>
-                    </div>
-                    <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-6">
-                        <p className="text-sm font-semibold text-slate-700">投稿のポイント</p>
-                        <ul className="mt-4 space-y-3 text-sm text-slate-600">
-                            <li>✅ 画像は1枚だけ選択できます</li>
-                            <li>✅ 商品は1つ以上追加してください</li>
-                            <li>✅ URLを入れると詳細ページから移動できます</li>
-                        </ul>
-                    </div>
+                <div className="mb-8">
+                    <p className="text-sm font-semibold uppercase tracking-[0.3em] text-sky-600">投稿フォーム</p>
+                    <h1 className="mt-4 text-3xl font-bold text-slate-900">あなただけのコーデをシェアしよう</h1>
                 </div>
 
                 {errorMessage && (

@@ -94,8 +94,7 @@ export const ItemList = () => {
             <div className="mb-8">
                 <div className="text-center">
                     <p className="text-sm font-semibold text-sky-600 uppercase tracking-[0.3em]">CoordPick</p>
-                    <h2 className="mt-4 text-3xl sm:text-4xl font-bold text-slate-900">今日のおすすめスタイリング</h2>
-                    <p className="mt-3 text-slate-600 max-w-2xl mx-auto text-sm sm:text-base">人気のコーディネートを一覧で確認できます。気になる投稿をタップして詳細をチェックしましょう。</p>
+                    <h2 className="mt-4 text-3xl sm:text-4xl font-bold text-slate-900">Styling一覧</h2>
                 </div>
             </div>
 
@@ -132,9 +131,8 @@ export const ItemList = () => {
                             <div className="p-5 sm:p-6">
                                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">{styling.creator?.user_name ?? '投稿者'} の投稿</p>
                                 <h3 className="mt-3 text-lg font-semibold text-slate-900 line-clamp-2">{styling.styling_explanation}</h3>
-                                <div className="mt-4 flex items-center justify-between text-sm text-slate-500">
+                                <div className="mt-4 flex items-center text-sm text-slate-500">
                                     <span>商品数 {styling.items.length}</span>
-                                    <span className="rounded-full bg-slate-100 px-3 py-1">ID {styling.styling_id}</span>
                                 </div>
                                 <div className="mt-5 inline-flex items-center rounded-full bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 transition group-hover:bg-sky-600 group-hover:text-white">
                                     詳細を見る

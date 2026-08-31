@@ -143,12 +143,24 @@ export const ItemDetail = () => {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between bg-white rounded-3xl p-6 shadow-md">
                 <div>
                     <h2 className="text-3xl font-bold text-slate-900">投稿の詳細</h2>
-                    <p className="mt-2 text-slate-600 max-w-2xl">投稿されたアイテムを一つずつ確認し、必要なら削除できます。</p>
+                    <p className="mt-2 text-slate-600 max-w-2xl">投稿されたアイテムを一つずつ確認できます。</p>
                 </div>
                 <button
                     onClick={() => navigate('/items')}
-                    className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-slate-50 px-5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition"
+                    className="group inline-flex items-center gap-2 self-start rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 hover:shadow-md"
                 >
+                    <svg
+                        className="h-4 w-4 transition-transform group-hover:-translate-x-0.5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                    >
+                        <path d="M15 18l-6-6 6-6" />
+                    </svg>
                     一覧に戻る
                 </button>
             </div>
@@ -169,15 +181,9 @@ export const ItemDetail = () => {
                             <h3 className="text-lg font-semibold text-slate-900">説明</h3>
                             <p className="mt-2 text-slate-600 leading-relaxed">{styling.styling_explanation}</p>
                         </div>
-                        <div className="grid gap-4 sm:grid-cols-2">
-                            <div className="rounded-3xl border border-slate-200 bg-white p-5">
-                                <p className="text-sm text-slate-500">投稿者ID</p>
-                                <p className="mt-2 text-lg font-semibold text-slate-900">{styling.user_id}</p>
-                            </div>
-                            <div className="rounded-3xl border border-slate-200 bg-white p-5">
-                                <p className="text-sm text-slate-500">商品数</p>
-                                <p className="mt-2 text-lg font-semibold text-slate-900">{styling.items.length}件</p>
-                            </div>
+                        <div className="rounded-3xl border border-slate-200 bg-white p-5">
+                            <p className="text-sm text-slate-500">商品数</p>
+                            <p className="mt-2 text-lg font-semibold text-slate-900">{styling.items.length}件</p>
                         </div>
                     </div>
                 </div>
@@ -202,22 +208,17 @@ export const ItemDetail = () => {
                         </div>
                     </div>
 
-                    <div className="rounded-3xl bg-white p-6 shadow-md">
-                        <h3 className="text-xl font-semibold text-slate-900">操作</h3>
-                        <p className="mt-2 text-sm text-slate-600">この投稿は、投稿したユーザーだけが削除できます。</p>
-                        {isOwner ? (
+                    {isOwner && (
+                        <div className="rounded-3xl bg-white p-6 shadow-md">
+                            <h3 className="text-xl font-semibold text-slate-900">操作</h3>
                             <button
                                 onClick={() => handleDelete(styling.styling_id)}
-                                className="mt-5 w-full rounded-2xl bg-red-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-red-700 transition"
+                                className="mt-4 w-full rounded-2xl bg-red-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-red-700 transition"
                             >
-                                投稿を削除する
+                                消去する
                             </button>
-                        ) : (
-                            <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                                この投稿は削除できません
-                            </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
