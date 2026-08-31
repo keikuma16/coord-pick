@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, Form, File, UploadFile, HTTPException
 from typing import List
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 import schemas, models, auth
 from db import SessionLocal 
 from fastapi.middleware.cors import CORSMiddleware
@@ -119,37 +119,65 @@ async def styling_create(
             detail="画像ファイルのみアップロードできます。jpeg, png, gif, webp のみ対応しています。"
         )
 
-    item_list = json.loads(items)
+    # items は multipart の文字列で届くので、まず JSON として妥当か確かめる。
+    # 壊れていたら 500 ではなく 400 で「フォームの内容が不正」と伝える。
+    try:
+        item_list = json.loads(items)
+    except (json.JSONDecodeError, TypeError):
+        raise HTTPException(status_code=400, detail="商品情報の形式が正しくありません。")
+    if not isinstance(item_list, list):
+        raise HTTPException(status_code=400, detail="商品情報の形式が正しくありません。")
 
-    upload_result = cloudinary.uploader.upload(
-        image_bytes,
-        folder="coordpick",
-        resource_type="image"
-    )
-    
-    img_url = upload_result.get("secure_url")
-
-    new_styling=models.Styling(
-        styling_explanation = styling_explanation,
-        styling_item_img = img_url,
-        user_id = current_user.user_id
-    )
-
-    db.add(new_styling)
-    db.commit()
-    db.refresh(new_styling)
-
-    for item in item_list:
-        new_item = models.Item(
-            item_name = item["name"],
-            item_brand = item["brand"],
-            item_url = item["url"],
-            item_category = item["category"],
-            styling_id = new_styling.styling_id
+    # Cloudinary への保存。認証情報の未設定やサービス障害でここが落ちると、
+    # 以前は素の 500 になり原因が分からなかった。502 で「画像保存に失敗」と返す。
+    try:
+        upload_result = cloudinary.uploader.upload(
+            image_bytes,
+            folder="coordpick",
+            resource_type="image"
         )
-        db.add(new_item)
-    
-    db.commit()
+    except Exception as e:
+        # 認証エラー・通信断など。詳細はログに残し、利用者には汎用メッセージを返す。
+        print(f"[upload] cloudinary error: {e}")
+        raise HTTPException(status_code=502, detail="画像の保存に失敗しました。時間をおいて再度お試しください。")
+
+    img_url = upload_result.get("secure_url")
+    if not img_url:
+        raise HTTPException(status_code=502, detail="画像の保存に失敗しました。時間をおいて再度お試しください。")
+
+    try:
+        new_styling = models.Styling(
+            styling_explanation = styling_explanation,
+            styling_item_img = img_url,
+            user_id = current_user.user_id
+        )
+        db.add(new_styling)
+        db.commit()
+        db.refresh(new_styling)
+
+        for item in item_list:
+            # 商品の必須項目が欠けていたら 400。KeyError による 500 を防ぐ。
+            try:
+                new_item = models.Item(
+                    item_name = item["name"],
+                    item_brand = item["brand"],
+                    item_url = item["url"],
+                    item_category = item["category"],
+                    styling_id = new_styling.styling_id
+                )
+            except (KeyError, TypeError):
+                db.rollback()
+                raise HTTPException(status_code=400, detail="商品情報に必要な項目（名前・ブランド・URL・カテゴリー）が足りません。")
+            db.add(new_item)
+
+        db.commit()
+    except HTTPException:
+        raise
+    except SQLAlchemyError as e:
+        db.rollback()
+        print(f"[upload] db error: {e}")
+        raise HTTPException(status_code=500, detail="投稿の保存に失敗しました。時間をおいて再度お試しください。")
+
     return new_styling
 
 #Stylingの情報取得

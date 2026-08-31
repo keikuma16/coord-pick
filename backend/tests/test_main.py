@@ -3,6 +3,23 @@ from fastapi.testclient import TestClient
 import main
 import models
 from db import SessionLocal
+import base64
+
+import cloudinary.uploader
+
+# 画像バリデーション(実バイト検査)を通すための最小の有効な PNG(1x1)
+_VALID_PNG = base64.b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQDJ/pLvAAAAAElFTkSuQmCC"
+)
+
+
+def _make_authed_token(user_name: str, email: str) -> str:
+    client.post(
+        "/users",
+        json={"user_name": user_name, "email": email, "password": "supersecret123"},
+    )
+    login = client.post("/login", json={"email": email, "password": "supersecret123"})
+    return login.json()["access_token"]
 
 client = TestClient(main.app)
 
@@ -129,6 +146,52 @@ def test_upload_rejects_content_type_spoofing():
         headers={"Authorization": f"Bearer {token}"},
         data={"styling_explanation": "test", "items": "[]"},
         files={"styling_item_img": ("fake.png", fake_image, "image/png")},
+    )
+    assert res.status_code == 400
+
+
+def test_upload_with_broken_items_json_returns_400():
+    token = _make_authed_token("gina", "gina@example.com")
+    res = client.post(
+        "/upload",
+        headers={"Authorization": f"Bearer {token}"},
+        data={"styling_explanation": "test", "items": "not-json"},
+        files={"styling_item_img": ("ok.png", _VALID_PNG, "image/png")},
+    )
+    assert res.status_code == 400
+
+
+def test_upload_returns_502_when_cloudinary_fails(monkeypatch):
+    # Cloudinary の認証未設定・障害を模す。以前は素の 500 になっていた。
+    def _boom(*args, **kwargs):
+        raise RuntimeError("cloudinary down")
+
+    monkeypatch.setattr(cloudinary.uploader, "upload", _boom)
+
+    token = _make_authed_token("hugo", "hugo@example.com")
+    res = client.post(
+        "/upload",
+        headers={"Authorization": f"Bearer {token}"},
+        data={"styling_explanation": "test", "items": "[]"},
+        files={"styling_item_img": ("ok.png", _VALID_PNG, "image/png")},
+    )
+    assert res.status_code == 502
+
+
+def test_upload_with_missing_item_fields_returns_400(monkeypatch):
+    monkeypatch.setattr(
+        cloudinary.uploader,
+        "upload",
+        lambda *a, **k: {"secure_url": "http://example.com/x.png"},
+    )
+
+    token = _make_authed_token("iris", "iris@example.com")
+    # brand / url / category が欠けた商品
+    res = client.post(
+        "/upload",
+        headers={"Authorization": f"Bearer {token}"},
+        data={"styling_explanation": "test", "items": '[{"name": "only-name"}]'},
+        files={"styling_item_img": ("ok.png", _VALID_PNG, "image/png")},
     )
     assert res.status_code == 400
 
