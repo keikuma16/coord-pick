@@ -12,25 +12,31 @@ export const Login = () => {
         e.preventDefault();
         setErrorMessage('')
 
-        const res = await fetch(`${API_BASE_URL}/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password
-            })
-        });
-        const data = await res.json();
-        if (!res.ok) {
-            setErrorMessage(data.detail || 'ログインに失敗しました。')
-            return;
-        }
+        try {
+            const res = await fetch(`${API_BASE_URL}/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setErrorMessage(data.detail || 'ログインに失敗しました。')
+                return;
+            }
 
-        const token = data.access_token;
-        localStorage.setItem("access_token", token);
-        navigate('/items');
+            const token = data.access_token;
+            localStorage.setItem("access_token", token);
+            navigate('/items');
+        } catch (error) {
+            // サーバーに繋がらない等。ここを握らないと、押しても何も起きず沈黙してしまう。
+            console.error('通信エラー', error);
+            setErrorMessage('通信に失敗しました。時間をおいて再度お試しください。');
+        }
     }
 
     return (

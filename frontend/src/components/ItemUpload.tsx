@@ -68,7 +68,16 @@ export const ItemUpload = () => {
                 return;
             }
             if (!res.ok) {
-                setErrorMessage('出品できませんでした。');
+                // バックエンドは失敗の原因ごとに日本語の説明(detail)を返す
+                // (例:「画像の保存に失敗しました」)。数字や汎用文で潰さず、その説明を優先して見せる。
+                let detail = '';
+                try {
+                    const data = await res.json();
+                    detail = data?.detail ?? '';
+                } catch {
+                    // JSON でない想定外の応答。汎用文にフォールバックする
+                }
+                setErrorMessage(detail || '出品できませんでした。時間をおいて再度お試しください。');
                 return;
             }
 

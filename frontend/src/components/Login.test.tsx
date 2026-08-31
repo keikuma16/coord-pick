@@ -72,4 +72,25 @@ describe('Login', () => {
     expect(navigateMock).not.toHaveBeenCalled()
     expect(localStorage.getItem('access_token')).toBeNull()
   })
+
+  it('サーバーに繋がらないとき、沈黙せず通信エラーのメッセージを表示する', async () => {
+    // fetch 自体が reject するケース(サーバーダウン・オフライン)。
+    // 以前は try/catch が無く、押しても何も起きず沈黙していた。
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network down')))
+
+    render(
+      <MemoryRouter>
+        <Login />
+      </MemoryRouter>,
+    )
+
+    await userEvent.type(screen.getByPlaceholderText('example@mail.com'), 'user@example.com')
+    await userEvent.type(screen.getByPlaceholderText('********'), 'password123')
+    await userEvent.click(screen.getByRole('button', { name: 'ログイン' }))
+
+    expect(
+      await screen.findByText('通信に失敗しました。時間をおいて再度お試しください。'),
+    ).toBeInTheDocument()
+    expect(navigateMock).not.toHaveBeenCalled()
+  })
 })
