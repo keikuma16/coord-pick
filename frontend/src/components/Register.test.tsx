@@ -33,9 +33,28 @@ describe('Register', () => {
       </MemoryRouter>,
     )
 
+    // ユーザー名だけ入れて、メール未入力のバリデーションに到達させる
+    await userEvent.type(screen.getByPlaceholderText('例: 太郎'), 'taro')
     await userEvent.click(screen.getByRole('button', { name: '新規登録' }))
 
     expect(await screen.findByText('メールアドレスを入力してください。')).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('ユーザー名未入力の場合はAPIを呼ばずにバリデーションエラーを表示する', async () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(
+      <MemoryRouter>
+        <Register />
+      </MemoryRouter>,
+    )
+
+    // 初期値を空にしたので、何も入れずに送るとユーザー名で止まる
+    await userEvent.click(screen.getByRole('button', { name: '新規登録' }))
+
+    expect(await screen.findByText('ユーザー名を入力してください。')).toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
@@ -48,6 +67,7 @@ describe('Register', () => {
       </MemoryRouter>,
     )
 
+    await userEvent.type(screen.getByPlaceholderText('例: 太郎'), 'user_taro')
     await userEvent.type(screen.getByPlaceholderText('example@mail.com'), 'user@example.com')
     await userEvent.type(screen.getByPlaceholderText('********'), 'password123')
     await userEvent.click(screen.getByRole('button', { name: '新規登録' }))
@@ -72,6 +92,7 @@ describe('Register', () => {
       </MemoryRouter>,
     )
 
+    await userEvent.type(screen.getByPlaceholderText('例: 太郎'), 'dup_user')
     await userEvent.type(screen.getByPlaceholderText('example@mail.com'), 'dup@example.com')
     await userEvent.type(screen.getByPlaceholderText('********'), 'password123')
     await userEvent.click(screen.getByRole('button', { name: '新規登録' }))

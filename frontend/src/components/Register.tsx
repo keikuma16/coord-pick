@@ -4,7 +4,7 @@ import { API_BASE_URL } from "../api";
 
 export const Register = () => {
     const navigate = useNavigate();
-    const [username, setUsername] = useState<string>('太郎');
+    const [username, setUsername] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState<string>('');

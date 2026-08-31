@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, Form, File, UploadFile, HTTPException
 from typing import List
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.exc import IntegrityError
 import schemas, models, auth
 from db import SessionLocal 
 from fastapi.middleware.cors import CORSMiddleware
@@ -67,9 +68,16 @@ app.add_middleware(
 #Userの登録
 @app.post("/users", response_model=schemas.UserPublic)
 async def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    existing_user = db.query(models.User).filter(models.User.email == user.email).first()
-    if existing_user is not None:
+    # メール・ユーザー名はどちらも DB でユニーク制約が張られている。
+    # ここで事前に照合して 400 で返さないと、commit 時の IntegrityError が
+    # そのまま 500 になり、利用者には「原因不明のエラー」に見えてしまう。
+    existing_email = db.query(models.User).filter(models.User.email == user.email).first()
+    if existing_email is not None:
         raise HTTPException(status_code=400, detail="このメールアドレスは既に登録されています")
+
+    existing_name = db.query(models.User).filter(models.User.user_name == user.user_name).first()
+    if existing_name is not None:
+        raise HTTPException(status_code=400, detail="このユーザー名は既に使われています")
 
     new_user = models.User(
         user_name = user.user_name,
@@ -77,7 +85,13 @@ async def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
         email = user.email
     )
     db.add(new_user)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        # 事前チェックと commit の間に同じ値が登録された場合の保険。
+        # ここを握らないと、競合が起きるたびに 500 が返ってしまう。
+        db.rollback()
+        raise HTTPException(status_code=400, detail="このメールアドレスまたはユーザー名は既に使われています")
     db.refresh(new_user)
     return new_user
 

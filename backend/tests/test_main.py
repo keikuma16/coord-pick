@@ -40,6 +40,25 @@ def test_register_duplicate_email_is_rejected():
     assert duplicate.status_code == 400
 
 
+def test_register_duplicate_username_is_rejected():
+    # user_name にも DB のユニーク制約がある。以前は事前チェックが無く、
+    # 同じ user_name で登録すると commit 時の IntegrityError が 500 になっていた。
+    # (フロントの初期値が "太郎" 固定で、2 人目が必ず踏んでいた)
+    payload = {
+        "user_name": "taro",
+        "email": "taro1@example.com",
+        "password": "supersecret123",
+    }
+    first = client.post("/users", json=payload)
+    assert first.status_code == 200
+
+    duplicate = client.post(
+        "/users",
+        json={**payload, "email": "taro2@example.com"},
+    )
+    assert duplicate.status_code == 400
+
+
 def test_users_list_endpoint_is_removed():
     # 認証なしで全ユーザー(パスワードハッシュ含む)を取得できてしまう
     # 脆弱なエンドポイントは削除済みであることを確認する(POSTのみ存在するので405)
