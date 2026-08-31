@@ -13,6 +13,11 @@ https://coord-pick.vercel.app
 - 自分が投稿した内容の削除（他人の投稿は削除不可）
 - 画像はCloudinaryにアップロードし、CDN経由で配信
 
+## スクリーンショット
+| 一覧 | 詳細 | ログイン |
+| --- | --- | --- |
+| ![一覧画面](docs/screenshots/list.png) | ![詳細画面](docs/screenshots/detail.png) | ![ログイン画面](docs/screenshots/login.png) |
+
 ## Docker
 ```bash
 copy .env.example .env
@@ -46,9 +51,15 @@ npm run dev
 
 ### テストの実行
 ```bash
+# Backend
 cd backend
 pip install -r requirements-dev.txt
 pytest
+
+# Frontend
+cd frontend
+npm install
+npm test
 ```
 
 ## 技術スタックと技術選定理由
@@ -64,11 +75,12 @@ pytest
 - **React Router**:ページ遷移の管理に使用
 - **TailwindCSS**
 - **Axios**
+- **Vitest / Testing Library**:ログイン・会員登録画面の挙動(バリデーション・API連携・画面遷移)のテストに使用
 
 ### Infrastructure / Tools
 - **Cloudinary**:画像データの最適化配信・クラウド管理のため導入。
 - **Vercel**（フロントエンド）/ **Render**（バックエンドAPI）
-- **GitHub Actions**:push・PR時にbackendのテストとfrontendのlint/buildを自動実行
+- **GitHub Actions**:push・PR時にbackendのテストとfrontendのlint/test/buildを自動実行
 - **Docker / docker compose**:ローカル環境の再現性を担保
 - **Git / GitHub**
 
@@ -84,9 +96,10 @@ pytest
 │   └── tests/        # pytestによるAPIテスト
 ├── frontend
 │   ├── src
-│   │   ├── components
+│   │   ├── components  # 画面コンポーネント(*.test.tsxはVitestのテスト)
 │   │   └── App.tsx
 │   └── index.html
+├── docs/screenshots   # READMEに載せているスクリーンショット
 ├── .github/workflows  # CI設定
 └── README.md
 ```
@@ -98,7 +111,7 @@ pytest
 - **セキュリティ**: パスワードはArgon2系アルゴリズムでハッシュ化、認可が必要なAPIはJWTで保護し、レスポンスに認証情報が含まれないようスキーマを分離しています。画像アップロードもContent-Typeだけでなくファイルの実バイナリを検証しています。
 
 ## 今後の課題
-- フロントエンドのテスト（Vitest等）の追加
+- フロントエンドのテストの拡充（現状はログイン・会員登録画面のみ）
 - リフレッシュトークンの導入によるログイン維持期間の改善
 - 画像アップロード時のファイルサイズ上限・枚数制限のバリデーション追加
 - ページネーション（現状は全投稿を一括取得しているため、投稿数が増えると性能面で課題）
