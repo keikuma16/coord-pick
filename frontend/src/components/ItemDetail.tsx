@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../api";
+import { cloudinaryImage } from "../cloudinary.js";
+
+// 詳細の写真は 1.2fr のカラムに収まる。高解像度ディスプレイぶんの余裕を見て 1200px を上限にする。
+const DETAIL_IMAGE_WIDTH = 1200;
 
 // JWT から user_id を取得する関数
 const getUserIdFromToken = (): number | null => {
@@ -40,12 +44,16 @@ export const ItemDetail = () => {
     const navigate = useNavigate();
     const [styling, setStyling] = useState<DetailStyling | null>(null);
     const [currentUserId] = useState<number | null>(() => getUserIdFromToken());
+    // 失敗を持っていないと、通信エラーのとき styling が null のままで
+    // 「読み込み中...」が永久に消えない
+    const [error, setError] = useState<string | null>(null);
     const { styling_id } = useParams();
 
     useEffect(() => {
         let cancelled = false;
 
         const fetchDetail = async () => {
+            setError(null);
             try {
                 const response = await fetch(`${API_BASE_URL}/detail/${styling_id}`);
                 if (response.ok) {
@@ -53,9 +61,11 @@ export const ItemDetail = () => {
                     if (!cancelled) setStyling(res);
                 } else {
                     console.log('詳細を表示できません');
+                    if (!cancelled) setError('詳細を表示できませんでした');
                 }
             } catch (error) {
                 console.error('通信エラー', error);
+                if (!cancelled) setError('通信に失敗しました');
             }
         };
 
@@ -100,6 +110,22 @@ export const ItemDetail = () => {
         }
     } 
 
+    if (error) {
+        return (
+            <div className="flex min-h-[60vh] items-center justify-center">
+                <div className="rounded-2xl bg-white p-8 shadow-lg text-center">
+                    <p className="text-xl font-semibold text-slate-900">{error}</p>
+                    <button
+                        onClick={() => navigate('/items')}
+                        className="mt-6 inline-flex items-center justify-center rounded-full border border-slate-300 bg-slate-50 px-5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition"
+                    >
+                        一覧に戻る
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     if (!styling) {
         return (
             <div className="flex min-h-[60vh] items-center justify-center">
@@ -130,7 +156,13 @@ export const ItemDetail = () => {
             <div className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr]">
                 <div className="rounded-3xl bg-white p-6 shadow-md">
                     <div className="overflow-hidden rounded-3xl bg-slate-100 shadow-inner">
-                        <img src={styling.styling_item_img} alt="投稿画像" className="h-full w-full object-contain" />
+                        <img
+                            // 一覧と同じく、原寸ではなく表示幅ぶんに縮めたものを取る
+                            src={cloudinaryImage(styling.styling_item_img, DETAIL_IMAGE_WIDTH)}
+                            alt="投稿画像"
+                            decoding="async"
+                            className="h-full w-full object-contain"
+                        />
                     </div>
                     <div className="mt-6 space-y-4">
                         <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
