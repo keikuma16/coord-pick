@@ -11,8 +11,9 @@ class UserLogin(BaseModel):
     email: str
     password: str
 
-class User(UserCreate):
+class UserPublic(BaseModel):
     user_id: int
+    user_name: str
     class Config:
         from_attributes = True
 class ItemCreate(BaseModel):
@@ -33,7 +34,7 @@ class StylingCreate(BaseModel):
 class Styling(StylingCreate):
     styling_id: int
     user_id: int
-    creator: User
+    creator: UserPublic
     items: list[Item]
 
     class Config:

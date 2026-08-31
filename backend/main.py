@@ -50,7 +50,7 @@ app.add_middleware(
  
 
 #Userの登録
-@app.post("/users")
+@app.post("/users", response_model=schemas.UserPublic)
 async def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     new_user = models.User(
         user_name = user.user_name,
@@ -61,12 +61,6 @@ async def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     return new_user
-
-#Userの取得
-@app.get("/users", response_model=List[schemas.User])
-async def users_read(db: Session = Depends(get_db)):
-    users = db.query(models.User).all()
-    return users
 
 #Stylingの登録
 @app.post("/upload")
@@ -119,18 +113,23 @@ async def styling_create(
     return new_styling
 
 #Stylingの情報取得
-@app.get("/stylings")
+@app.get("/stylings", response_model=List[schemas.Styling])
 async def get_styling(db: Session = Depends(get_db)):
-    stylings = db.query(models.Styling).options(joinedload(models.Styling.items)).all()
+    stylings = db.query(models.Styling)\
+        .options(joinedload(models.Styling.items), joinedload(models.Styling.creator))\
+        .all()
     return stylings
 
 #詳細情報の取得
-@app.get("/detail/{styling_id}")
+@app.get("/detail/{styling_id}", response_model=schemas.Styling)
 async def get_styling_detail(styling_id: int, db: Session = Depends(get_db)):
     styling = db.query(models.Styling)\
-    .options(joinedload(models.Styling.items))\
+    .options(joinedload(models.Styling.items), joinedload(models.Styling.creator))\
     .filter(models.Styling.styling_id == styling_id)\
     .first()
+
+    if styling is None:
+        raise HTTPException(status_code=404, detail="投稿が存在しません")
 
     return styling
 
