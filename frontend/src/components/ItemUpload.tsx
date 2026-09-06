@@ -3,6 +3,13 @@ import { useEffect, useState } from "react";
 import type { Item } from "../types.js";
 import { API_BASE_URL } from "../api";
 import { clearToken, getToken } from "../auth.js";
+import {
+    ITEM_CATEGORIES,
+    ITEM_CONDITIONS,
+    ITEM_CONDITION_NEW,
+    categoryLabel,
+    conditionLabel,
+} from "../constants.js";
 
 // 購入先に飛べることがこのサービスの中身なので、
 // 形式が壊れたURLは投稿前に止める。通してしまうと閲覧者が死んだリンクを踏む。
@@ -25,8 +32,11 @@ export const ItemUpload = () => {
     const [brand, setBrand] = useState<string>('');
     const [itemurl, setItemurl] = useState<string>('');
     const [category, setCategory] = useState<string>('');
+    const [condition, setCondition] = useState<string>(ITEM_CONDITION_NEW);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string>('');
+
+    const isNewCondition = condition === ITEM_CONDITION_NEW;
 
     useEffect(() => {
         if (!imageFile) {
@@ -111,13 +121,16 @@ export const ItemUpload = () => {
         const missing: string[] = [];
         if (!itemname.trim()) missing.push('商品名');
         if (!brand.trim()) missing.push('ブランド');
-        if (!category.trim()) missing.push('カテゴリー');
-        if (!itemurl.trim()) missing.push('商品URL');
+        if (!category) missing.push('カテゴリー');
+        // 新品は購入先があるはずなので必須。古着は一点物で、買える場所が無いこともある
+        if (isNewCondition && !itemurl.trim()) missing.push('商品URL');
         if (missing.length > 0) {
-            setErrorMessage(missing.join('・') + 'を入力してください。');
+            // カテゴリーは選択式なので「入力」ではなく「選択」と言う
+            const verb = missing.every((field) => field === 'カテゴリー') ? '選んでください' : '入力してください';
+            setErrorMessage(missing.join('・') + 'を' + verb + '。');
             return;
         }
-        if (!isValidItemUrl(itemurl.trim())) {
+        if (itemurl.trim() && !isValidItemUrl(itemurl.trim())) {
             setErrorMessage('商品URLは http:// または https:// から始まる形式で入力してください。');
             return;
         }
@@ -126,12 +139,14 @@ export const ItemUpload = () => {
             name: itemname.trim(),
             brand: brand.trim(),
             url: itemurl.trim(),
-            category: category.trim()
+            category,
+            condition
         }]);
         setItemname('');
         setBrand('');
         setItemurl('');
         setCategory('');
+        // 状態は選び直さずに残す。同じ投稿では古着が続くことが多い
         setErrorMessage('');
     };
 
@@ -200,30 +215,59 @@ export const ItemUpload = () => {
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div className="space-y-3 rounded-3xl border border-slate-200 bg-white p-5">
                                 <label htmlFor="item-category" className="block text-sm font-semibold text-slate-700">カテゴリー</label>
-                                <input
+                                {/* 自由入力だと tops / トップス / Tops が混ざって溜まる */}
+                                <select
                                     id="item-category"
                                     name="item_category"
-                                    type="text"
                                     value={category}
                                     onChange={(e) => setCategory(e.target.value)}
-                                    className="w-full rounded-3xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-                                    placeholder="例: tops"
-                                />
+                                    className="w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                                >
+                                    <option value="">選択してください</option>
+                                    {ITEM_CATEGORIES.map((option) => (
+                                        <option key={option.value} value={option.value}>{option.label}</option>
+                                    ))}
+                                </select>
                             </div>
-                            <div className="space-y-3 rounded-3xl border border-slate-200 bg-white p-5">
-                                <label htmlFor="item-url" className="block text-sm font-semibold text-slate-700">商品URL</label>
-                                <input
-                                    id="item-url"
-                                    name="item_url"
-                                    // スマホで URL 用のキーボードを出す
-                                    type="url"
-                                    inputMode="url"
-                                    value={itemurl}
-                                    onChange={(e) => setItemurl(e.target.value)}
-                                    className="w-full rounded-3xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-                                    placeholder="https://example.com/items/123"
-                                />
-                            </div>
+                            <fieldset className="space-y-3 rounded-3xl border border-slate-200 bg-white p-5">
+                                <legend className="text-sm font-semibold text-slate-700">商品の状態</legend>
+                                <div className="flex flex-col gap-2 pt-1">
+                                    {ITEM_CONDITIONS.map((option) => (
+                                        <label key={option.value} className="flex cursor-pointer items-baseline gap-2 text-sm text-slate-700">
+                                            <input
+                                                type="radio"
+                                                name="item_condition"
+                                                value={option.value}
+                                                checked={condition === option.value}
+                                                onChange={(e) => setCondition(e.target.value)}
+                                                className="accent-sky-600"
+                                            />
+                                            <span className="font-semibold">{option.label}</span>
+                                            <span className="text-xs text-slate-500">{option.hint}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <div className="space-y-3 rounded-3xl border border-slate-200 bg-white p-5">
+                            <label htmlFor="item-url" className="block text-sm font-semibold text-slate-700">
+                                商品URL{isNewCondition ? '' : '（任意）'}
+                            </label>
+                            <input
+                                id="item-url"
+                                name="item_url"
+                                // スマホで URL 用のキーボードを出す
+                                type="url"
+                                inputMode="url"
+                                value={itemurl}
+                                onChange={(e) => setItemurl(e.target.value)}
+                                className="w-full rounded-3xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                                placeholder="https://example.com/items/123"
+                            />
+                            {!isNewCondition && (
+                                <p className="text-xs text-slate-500">買える場所があれば入れてください。無くても投稿できます。</p>
+                            )}
                         </div>
 
                         <div className="flex flex-wrap gap-3">
@@ -245,8 +289,14 @@ export const ItemUpload = () => {
                                         <div key={index} className="flex items-start justify-between gap-4 rounded-3xl border border-slate-200 bg-slate-50 p-4">
                                             <div className="min-w-0">
                                                 <p className="text-sm font-semibold text-slate-900">{item.name}</p>
-                                                <p className="text-sm text-slate-600">{item.brand} / {item.category}</p>
-                                                <a href={item.url} target="_blank" rel="noreferrer" className="text-sm text-sky-600 hover:text-sky-700 break-all">商品ページを見る</a>
+                                                <p className="text-sm text-slate-600">
+                                                    {item.brand} / {categoryLabel(item.category)} / {conditionLabel(item.condition)}
+                                                </p>
+                                                {item.url ? (
+                                                    <a href={item.url} target="_blank" rel="noreferrer" className="text-sm text-sky-600 hover:text-sky-700 break-all">商品ページを見る</a>
+                                                ) : (
+                                                    <p className="text-sm text-slate-500">購入先URLなし</p>
+                                                )}
                                             </div>
                                             <button
                                                 type="button"
@@ -265,9 +315,10 @@ export const ItemUpload = () => {
 
                     <div className="space-y-6">
                         <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-6 text-center">
-                            <div className="mx-auto mb-4 h-64 w-full overflow-hidden rounded-[1.5rem] bg-slate-100">
+                            {/* 一覧と同じく切らずに全体を見せる。投稿前に全身が入っているか確かめられる */}
+                            <div className="mx-auto mb-4 h-80 w-full overflow-hidden rounded-[1.5rem] bg-slate-100">
                                 {imagePreview ? (
-                                    <img src={imagePreview} alt="選択した画像のプレビュー" className="h-full w-full object-cover" />
+                                    <img src={imagePreview} alt="選択した画像のプレビュー" className="h-full w-full object-contain" />
                                 ) : (
                                     <div className="flex h-full items-center justify-center text-slate-400">画像を選択してください</div>
                                 )}
