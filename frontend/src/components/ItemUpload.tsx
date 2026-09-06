@@ -2,6 +2,18 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import type { Item } from "../types.js";
 import { API_BASE_URL } from "../api";
+import { clearToken, getToken } from "../auth.js";
+
+// 購入先に飛べることがこのサービスの中身なので、
+// 形式が壊れたURLは投稿前に止める。通してしまうと閲覧者が死んだリンクを踏む。
+const isValidItemUrl = (value: string): boolean => {
+    try {
+        const url = new URL(value);
+        return url.protocol === "http:" || url.protocol === "https:";
+    } catch {
+        return false;
+    }
+};
 
 export const ItemUpload = () => {
     const navigate = useNavigate();
@@ -52,19 +64,23 @@ export const ItemUpload = () => {
         setIsSubmitting(true);
 
         try {
-            const token = localStorage.getItem("access_token");
             const res = await fetch(`${API_BASE_URL}/upload`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${getToken()}`
                 },
                 body: formData
             });
 
             if (res.status === 401) {
-                setErrorMessage('ログインが必要です。');
-                localStorage.removeItem("access_token");
-                navigate('/login');
+                // 入力中に有効期限が切れた場合。戻り先を渡して、ログイン後にここへ帰す
+                clearToken();
+                navigate('/login', {
+                    state: {
+                        from: '/upload',
+                        flash: 'ログインの有効期限が切れました。もう一度ログインしてください。',
+                    },
+                });
                 return;
             }
             if (!res.ok) {
@@ -81,8 +97,7 @@ export const ItemUpload = () => {
                 return;
             }
 
-            alert('出品が完了しました');
-            navigate('/items');
+            navigate('/items', { state: { flash: '投稿を公開しました。' } });
         } catch (error) {
             console.error(error);
             setErrorMessage('通信エラーが発生しました。');
@@ -92,22 +107,37 @@ export const ItemUpload = () => {
     };
 
     const addItem = () => {
-        const newItem = {
-            name: itemname,
-            brand: brand,
-            url: itemurl,
-            category: category
-        };
-        if (!itemname || !brand || !itemurl || !category) {
-            setErrorMessage('入力されていない項目があります。');
+        // 「入力されていない項目があります」だけでは、どれを直せばよいか分からない
+        const missing: string[] = [];
+        if (!itemname.trim()) missing.push('商品名');
+        if (!brand.trim()) missing.push('ブランド');
+        if (!category.trim()) missing.push('カテゴリー');
+        if (!itemurl.trim()) missing.push('商品URL');
+        if (missing.length > 0) {
+            setErrorMessage(missing.join('・') + 'を入力してください。');
             return;
         }
-        setItems(prev => [...prev, newItem]);
+        if (!isValidItemUrl(itemurl.trim())) {
+            setErrorMessage('商品URLは http:// または https:// から始まる形式で入力してください。');
+            return;
+        }
+
+        setItems(prev => [...prev, {
+            name: itemname.trim(),
+            brand: brand.trim(),
+            url: itemurl.trim(),
+            category: category.trim()
+        }]);
         setItemname('');
         setBrand('');
         setItemurl('');
         setCategory('');
         setErrorMessage('');
+    };
+
+    // 打ち間違えた商品を消せないと、リロードして最初からやり直すしかなくなる
+    const removeItem = (index: number) => {
+        setItems(prev => prev.filter((_, i) => i !== index));
     };
 
     return (
@@ -119,16 +149,19 @@ export const ItemUpload = () => {
                 </div>
 
                 {errorMessage && (
-                    <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    <div role="alert" className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                         {errorMessage}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-[1.25fr_0.75fr]">
+                {/* 検証は自前でまとめて出すので、ブラウザ標準の吹き出しは止める */}
+                <form onSubmit={handleSubmit} noValidate className="grid gap-8 lg:grid-cols-[1.25fr_0.75fr]">
                     <div className="space-y-6">
                         <div className="space-y-3 rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                            <label className="block text-sm font-semibold text-slate-700">Styling説明</label>
+                            <label htmlFor="styling-explanation" className="block text-sm font-semibold text-slate-700">Styling説明</label>
                             <textarea
+                                id="styling-explanation"
+                                name="styling_explanation"
                                 value={explanation}
                                 onChange={(e) => setExplanation(e.target.value)}
                                 rows={4}
@@ -139,42 +172,56 @@ export const ItemUpload = () => {
 
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div className="space-y-3 rounded-3xl border border-slate-200 bg-white p-5">
-                                <label className="block text-sm font-semibold text-slate-700">商品名</label>
+                                <label htmlFor="item-name" className="block text-sm font-semibold text-slate-700">商品名</label>
                                 <input
+                                    id="item-name"
+                                    name="item_name"
                                     type="text"
                                     value={itemname}
                                     onChange={(e) => setItemname(e.target.value)}
                                     className="w-full rounded-3xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                                    placeholder="例: レーシングジャケット"
                                 />
                             </div>
                             <div className="space-y-3 rounded-3xl border border-slate-200 bg-white p-5">
-                                <label className="block text-sm font-semibold text-slate-700">ブランド</label>
+                                <label htmlFor="item-brand" className="block text-sm font-semibold text-slate-700">ブランド</label>
                                 <input
+                                    id="item-brand"
+                                    name="item_brand"
                                     type="text"
                                     value={brand}
                                     onChange={(e) => setBrand(e.target.value)}
                                     className="w-full rounded-3xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                                    placeholder="例: supreme"
                                 />
                             </div>
                         </div>
 
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div className="space-y-3 rounded-3xl border border-slate-200 bg-white p-5">
-                                <label className="block text-sm font-semibold text-slate-700">カテゴリー</label>
+                                <label htmlFor="item-category" className="block text-sm font-semibold text-slate-700">カテゴリー</label>
                                 <input
+                                    id="item-category"
+                                    name="item_category"
                                     type="text"
                                     value={category}
                                     onChange={(e) => setCategory(e.target.value)}
                                     className="w-full rounded-3xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                                    placeholder="例: tops"
                                 />
                             </div>
                             <div className="space-y-3 rounded-3xl border border-slate-200 bg-white p-5">
-                                <label className="block text-sm font-semibold text-slate-700">商品URL</label>
+                                <label htmlFor="item-url" className="block text-sm font-semibold text-slate-700">商品URL</label>
                                 <input
-                                    type="text"
+                                    id="item-url"
+                                    name="item_url"
+                                    // スマホで URL 用のキーボードを出す
+                                    type="url"
+                                    inputMode="url"
                                     value={itemurl}
                                     onChange={(e) => setItemurl(e.target.value)}
                                     className="w-full rounded-3xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                                    placeholder="https://example.com/items/123"
                                 />
                             </div>
                         </div>
@@ -187,7 +234,7 @@ export const ItemUpload = () => {
                             >
                                 商品を追加する
                             </button>
-                            <span className="self-center text-sm text-slate-500">{items.length} 件を追加済み</span>
+                            <span className="self-center text-sm text-slate-500" aria-live="polite">{items.length} 件を追加済み</span>
                         </div>
 
                         {items.length > 0 && (
@@ -195,10 +242,20 @@ export const ItemUpload = () => {
                                 <h2 className="text-sm font-semibold text-slate-800">追加済みの商品</h2>
                                 <div className="space-y-3">
                                     {items.map((item, index) => (
-                                        <div key={index} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                                            <p className="text-sm font-semibold text-slate-900">{item.name}</p>
-                                            <p className="text-sm text-slate-600">{item.brand} / {item.category}</p>
-                                            <a href={item.url} target="_blank" rel="noreferrer" className="text-sm text-sky-600 hover:text-sky-700">商品ページを見る</a>
+                                        <div key={index} className="flex items-start justify-between gap-4 rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-semibold text-slate-900">{item.name}</p>
+                                                <p className="text-sm text-slate-600">{item.brand} / {item.category}</p>
+                                                <a href={item.url} target="_blank" rel="noreferrer" className="text-sm text-sky-600 hover:text-sky-700 break-all">商品ページを見る</a>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeItem(index)}
+                                                aria-label={`${item.name} を削除する`}
+                                                className="shrink-0 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-red-300 hover:bg-red-50 hover:text-red-700"
+                                            >
+                                                削除
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
@@ -210,14 +267,16 @@ export const ItemUpload = () => {
                         <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-6 text-center">
                             <div className="mx-auto mb-4 h-64 w-full overflow-hidden rounded-[1.5rem] bg-slate-100">
                                 {imagePreview ? (
-                                    <img src={imagePreview} alt="プレビュー" className="h-full w-full object-cover" />
+                                    <img src={imagePreview} alt="選択した画像のプレビュー" className="h-full w-full object-cover" />
                                 ) : (
                                     <div className="flex h-full items-center justify-center text-slate-400">画像を選択してください</div>
                                 )}
                             </div>
-                            <label className="inline-flex cursor-pointer items-center justify-center rounded-full border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
+                            <label htmlFor="styling-image" className="inline-flex cursor-pointer items-center justify-center rounded-full border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
                                 画像を選ぶ
                                 <input
+                                    id="styling-image"
+                                    name="styling_item_img"
                                     type="file"
                                     accept="image/*"
                                     onChange={(e) => {
