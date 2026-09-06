@@ -4,6 +4,7 @@ import { API_BASE_URL } from "../api";
 import { cloudinaryImage } from "../cloudinary.js";
 import { clearToken, getToken, getUserId } from "../auth.js";
 import { ConfirmDialog } from "./ConfirmDialog.js";
+import { categoryLabel, conditionLabel } from "../constants.js";
 
 // 詳細の写真は 1.2fr のカラムに収まる。高解像度ディスプレイぶんの余裕を見て 1200px を上限にする。
 const DETAIL_IMAGE_WIDTH = 1200;
@@ -14,7 +15,10 @@ export const ItemDetail = () => {
         item_name: string,
         item_brand: string,
         item_category: string,
-        item_url:string
+        // 後から足した項目。それ以前の投稿では空
+        item_condition: string | null,
+        // 古着は購入先が無いことがある
+        item_url: string | null
     }
     interface DetailStyling {
         styling_id: number,
@@ -199,15 +203,25 @@ export const ItemDetail = () => {
                         <div className="mt-4 space-y-4">
                             {styling.items.map((item) => (
                                 <article key={item.item_id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4 shadow-sm transition hover:shadow-md">
-                                    <div className="flex flex-wrap items-center justify-between gap-3">
-                                        <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">{item.item_category}</span>
-                                        <span className="text-sm text-slate-500">ID {item.item_id}</span>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">{categoryLabel(item.item_category)}</span>
+                                        {/* 状態は後から足したので、それ以前の投稿では出さない */}
+                                        {conditionLabel(item.item_condition) && (
+                                            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                                                {conditionLabel(item.item_condition)}
+                                            </span>
+                                        )}
                                     </div>
                                     <h4 className="mt-3 text-lg font-semibold text-slate-900">{item.item_name}</h4>
                                     <p className="mt-1 text-sm text-slate-600">ブランド: {item.item_brand}</p>
-                                    <a href={item.item_url} target="_blank" rel="noreferrer" className="mt-4 inline-block text-sm font-medium text-sky-600 hover:text-sky-700">
-                                        商品ページへ移動
-                                    </a>
+                                    {item.item_url ? (
+                                        <a href={item.item_url} target="_blank" rel="noreferrer" className="mt-4 inline-block text-sm font-medium text-sky-600 hover:text-sky-700">
+                                            商品ページへ移動
+                                        </a>
+                                    ) : (
+                                        // 古着で購入先が無い場合。空のリンクを出すと踏んでも何も起きない
+                                        <p className="mt-4 text-sm text-slate-500">購入先の情報はありません</p>
+                                    )}
                                 </article>
                             ))}
                         </div>
