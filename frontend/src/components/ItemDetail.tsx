@@ -2,29 +2,11 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../api";
 import { cloudinaryImage } from "../cloudinary.js";
+import { clearToken, getToken, getUserId } from "../auth.js";
+import { ConfirmDialog } from "./ConfirmDialog.js";
 
 // 詳細の写真は 1.2fr のカラムに収まる。高解像度ディスプレイぶんの余裕を見て 1200px を上限にする。
 const DETAIL_IMAGE_WIDTH = 1200;
-
-// JWT から user_id を取得する関数
-const getUserIdFromToken = (): number | null => {
-    const token = localStorage.getItem("access_token");
-    if (!token) return null;
-    
-    try {
-        const parts = token.split('.');
-        if (parts.length !== 3) return null;
-        
-        const payload = parts[1];
-        const padded = payload + '='.repeat((4 - payload.length % 4) % 4);
-        const decoded = JSON.parse(atob(padded));
-        
-        return decoded.user_id || null;
-    } catch (error) {
-        console.error("Token decode error:", error);
-        return null;
-    }
-};
 
 export const ItemDetail = () => {
     interface DetailItem{
@@ -43,7 +25,13 @@ export const ItemDetail = () => {
     }
     const navigate = useNavigate();
     const [styling, setStyling] = useState<DetailStyling | null>(null);
-    const [currentUserId] = useState<number | null>(() => getUserIdFromToken());
+    const [currentUserId] = useState<number | null>(() => getUserId());
+    // 削除は取り消せないので、押した直後ではなく確認をはさむ
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    // 削除の失敗。読み込みの失敗(error)とは別に持たないと、
+    // 表示中の投稿がエラー画面に置き換わってしまう
+    const [actionError, setActionError] = useState<string | null>(null);
     // 失敗を持っていないと、通信エラーのとき styling が null のままで
     // 「読み込み中...」が永久に消えない
     const [error, setError] = useState<string | null>(null);
@@ -76,13 +64,19 @@ export const ItemDetail = () => {
     }, [styling_id]);
 
     const handleDelete = async(id: number) => {
-        if(!window.confirm('本当に削除しますか？')) return;
+        setActionError(null);
+        setIsDeleting(true);
 
         try{
-            const token = localStorage.getItem("access_token");
+            const token = getToken();
             if (!token) {
-                alert('ログインをしてください');
-                navigate('/login');
+                clearToken();
+                navigate('/login', {
+                    state: {
+                        from: `/detail/${id}`,
+                        flash: 'この操作にはログインが必要です。',
+                    },
+                });
                 return;
             }
 
@@ -92,23 +86,34 @@ export const ItemDetail = () => {
                     'Authorization': `Bearer ${token}`
                 }
             })
-            
+
             if(res.ok){
-                alert('投稿を削除しました');
-                navigate("/items");
+                navigate("/items", { state: { flash: '投稿を削除しました。' } });
+            } else if (res.status === 401) {
+                clearToken();
+                navigate('/login', {
+                    state: {
+                        from: `/detail/${id}`,
+                        flash: 'ログインの有効期限が切れました。もう一度ログインしてください。',
+                    },
+                });
             } else if (res.status === 403) {
-                alert('他人の投稿は削除できません');
+                setActionError('この投稿は投稿者本人だけが削除できます。');
             } else if (res.status === 404) {
-                alert('投稿が見つかりません');
+                setActionError('この投稿は見つかりませんでした。すでに削除されている可能性があります。');
             } else {
-                alert('削除に失敗しました');
+                setActionError('削除に失敗しました。時間をおいて、もう一度お試しください。');
             }
         }
         catch(error){
             console.error('消去失敗', error);
-            alert('削除に失敗しました');
+            setActionError('通信に失敗しました。時間をおいて、もう一度お試しください。');
         }
-    } 
+        finally {
+            setIsDeleting(false);
+            setIsConfirmOpen(false);
+        }
+    }
 
     if (error) {
         return (
@@ -211,16 +216,36 @@ export const ItemDetail = () => {
                     {isOwner && (
                         <div className="rounded-3xl bg-white p-6 shadow-md">
                             <h3 className="text-xl font-semibold text-slate-900">操作</h3>
+
+                            {actionError && (
+                                <div role="alert" className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                                    {actionError}
+                                </div>
+                            )}
+
                             <button
-                                onClick={() => handleDelete(styling.styling_id)}
+                                onClick={() => {
+                                    setActionError(null);
+                                    setIsConfirmOpen(true);
+                                }}
                                 className="mt-4 w-full rounded-2xl bg-red-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-red-700 transition"
                             >
-                                消去する
+                                この投稿を削除する
                             </button>
                         </div>
                     )}
                 </div>
             </div>
+
+            <ConfirmDialog
+                isOpen={isConfirmOpen}
+                title="この投稿を削除しますか？"
+                description="削除すると、写真とアイテムの購入先リンクは元に戻せません。共有済みのリンクからも見られなくなります。"
+                confirmLabel="削除する"
+                isProcessing={isDeleting}
+                onConfirm={() => handleDelete(styling.styling_id)}
+                onCancel={() => setIsConfirmOpen(false)}
+            />
         </div>
     )
 }
