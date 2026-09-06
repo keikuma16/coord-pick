@@ -1,13 +1,17 @@
 import React, { useState } from "react"
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../api";
 
 export const Register = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [username, setUsername] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState<string>('');
+
+    // ログインが必要で弾かれた人が登録に回ってきた場合、その行き先を保つ
+    const from = (location.state as { from?: string } | null)?.from ?? '/items';
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -38,7 +42,12 @@ export const Register = () => {
                 }),
             })
             if (request.ok) {
-                navigate('/items');
+                // 登録APIはトークンを返さないので、この時点ではまだ未ログイン。
+                // 一覧へ送ると「登録できたのにログインしていない」状態になって伝わらない。
+                navigate('/login', {
+                    replace: true,
+                    state: { from, flash: '登録が完了しました。ログインしてください。' },
+                });
             } else {
                 const data = await request.json();
                 setErrorMessage(data.detail || '登録に失敗しました。');
@@ -60,16 +69,19 @@ export const Register = () => {
                 </div>
 
                 {errorMessage && (
-                    <div className="mb-6 rounded-3xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    <div role="alert" className="mb-6 rounded-3xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                         {errorMessage}
                     </div>
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                        <label className="text-sm font-semibold text-slate-700">ユーザー名</label>
+                        <label htmlFor="register-username" className="text-sm font-semibold text-slate-700">ユーザー名</label>
                         <input
+                            id="register-username"
+                            name="username"
                             type='text'
+                            autoComplete="nickname"
                             value={username}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
                             className="mt-3 w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
@@ -77,9 +89,12 @@ export const Register = () => {
                         />
                     </div>
                     <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                        <label className="text-sm font-semibold text-slate-700">メールアドレス</label>
+                        <label htmlFor="register-email" className="text-sm font-semibold text-slate-700">メールアドレス</label>
                         <input
-                            type='text'
+                            id="register-email"
+                            name="email"
+                            type='email'
+                            autoComplete="email"
                             value={email}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                             className="mt-3 w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
@@ -87,9 +102,12 @@ export const Register = () => {
                         />
                     </div>
                     <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                        <label className="text-sm font-semibold text-slate-700">パスワード</label>
+                        <label htmlFor="register-password" className="text-sm font-semibold text-slate-700">パスワード</label>
                         <input
+                            id="register-password"
+                            name="password"
                             type='password'
+                            autoComplete="new-password"
                             value={password}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                             className="mt-3 w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
@@ -100,6 +118,13 @@ export const Register = () => {
                         新規登録
                     </button>
                 </form>
+
+                <p className="mt-6 text-center text-sm text-slate-600">
+                    すでにアカウントをお持ちの方は{' '}
+                    <Link to="/login" state={{ from }} className="font-semibold text-sky-600 hover:text-sky-700">
+                        ログイン
+                    </Link>
+                </p>
             </div>
         </div>
     )

@@ -3,37 +3,31 @@ import { Register } from './components/Register.js'
 import { ItemList } from './components/ItemList.js'
 import { ItemUpload } from './components/ItemUpload.js'
 import { Login } from './components/Login.js'
-import { Routes, Route, Link, useNavigate} from 'react-router-dom'
+import { Routes, Route, Link, useLocation, useNavigate} from 'react-router-dom'
 import { ItemDetail } from './components/ItemDetail.js'
+import { FlashBanner } from './components/FlashBanner.js'
+import { RequireAuth } from './components/RequireAuth.js'
+import { clearToken, getUserName, isLoggedIn } from './auth.js'
 import { useEffect, useState } from 'react'
 
 
 function App() {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [loggedIn, setLoggedIn] = useState(false);
     const [userName, setUserName] = useState<string | null>(null);
     const navigate = useNavigate();
+    const location = useLocation();
 
-    // ページ読み込み時とローカルストレージ変更時にログイン状態を確認
+    // ログイン状態を確認する。
+    // 画面遷移のたびに見直さないと、ログイン直後もヘッダーが
+    // 「ログイン / 会員登録」のままになる(同じタブの localStorage 変更では
+    // storage イベントが飛ばないため)。
     useEffect(() => {
         const checkLoginStatus = () => {
-            const token = localStorage.getItem("access_token");
-            if (token) {
-                setIsLoggedIn(true);
-                // token から user_name を取得（簡易版、実装時には API で取得する選択肢も）
-                try {
-                    const parts = token.split('.');
-                    if (parts.length === 3) {
-                        const payload = parts[1];
-                        const padded = payload + '='.repeat((4 - payload.length % 4) % 4);
-                        const decoded = JSON.parse(atob(padded));
-                        setUserName(decoded.user_name || "ユーザー");
-                    }
-                } catch (error) {
-                    console.error("Token decode error:", error);
-                    setUserName("ユーザー");
-                }
+            if (isLoggedIn()) {
+                setLoggedIn(true);
+                setUserName(getUserName() ?? "ユーザー");
             } else {
-                setIsLoggedIn(false);
+                setLoggedIn(false);
                 setUserName(null);
             }
         };
@@ -43,14 +37,13 @@ function App() {
         // storage イベントをリッスン（他のタブでの変更に対応）
         window.addEventListener("storage", checkLoginStatus);
         return () => window.removeEventListener("storage", checkLoginStatus);
-    }, []);
+    }, [location]);
 
     const handleLogout = () => {
-        localStorage.removeItem("access_token");
-        setIsLoggedIn(false);
+        clearToken();
+        setLoggedIn(false);
         setUserName(null);
-        navigate("/items");
-        alert("ログアウトしました");
+        navigate("/items", { state: { flash: "ログアウトしました。" } });
     };
 
     return(
@@ -74,7 +67,7 @@ function App() {
                                     一覧
                                 </Link>
                                 
-                                {isLoggedIn ? (
+                                {loggedIn ? (
                                     <>
                                         <Link 
                                             to='/upload' 
@@ -101,7 +94,7 @@ function App() {
                                 )}
                             </div>
 
-                            {isLoggedIn && (
+                            {loggedIn && (
                                 <div className='flex items-center gap-3 sm:gap-4'>
                                     <span className='text-xs sm:text-sm text-slate-600'>
                                         {userName}
@@ -119,10 +112,18 @@ function App() {
                 </header>
                 
                 <main className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+                    <FlashBanner />
                     <Routes>
                         <Route path="/" element={<ItemList />} />
                         <Route path='/register' element={<Register/>}/>
-                        <Route path='/upload' element={<ItemUpload/>}/>
+                        <Route
+                            path='/upload'
+                            element={
+                                <RequireAuth>
+                                    <ItemUpload/>
+                                </RequireAuth>
+                            }
+                        />
                         <Route path='/items' element={<ItemList/>}/>
                         <Route path='/login' element={<Login/>}/>
                         <Route path='/detail/:styling_id' element={<ItemDetail />}/>

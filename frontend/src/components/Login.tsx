@@ -1,12 +1,18 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { API_BASE_URL } from "../api";
+import { saveToken } from "../auth.js";
 
 export const Login = () => {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
     const [errorMessage, setErrorMessage] = useState<string>('')
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // ログインが必要で弾かれた場合は、その行き先を引き継いで戻す。
+    // 常に一覧へ戻すと、投稿しようとした人が投稿画面に帰れない。
+    const from = (location.state as { from?: string } | null)?.from ?? '/items';
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -29,9 +35,8 @@ export const Login = () => {
                 return;
             }
 
-            const token = data.access_token;
-            localStorage.setItem("access_token", token);
-            navigate('/items');
+            saveToken(data.access_token);
+            navigate(from, { replace: true });
         } catch (error) {
             // サーバーに繋がらない等。ここを握らないと、押しても何も起きず沈黙してしまう。
             console.error('通信エラー', error);
@@ -49,16 +54,21 @@ export const Login = () => {
                 </div>
 
                 {errorMessage && (
-                    <div className="mb-6 rounded-3xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    <div role="alert" className="mb-6 rounded-3xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                         {errorMessage}
                     </div>
                 )}
 
                 <div className="space-y-5">
                     <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-slate-700">メールアドレス</label>
+                        <label htmlFor="login-email" className="block text-sm font-semibold text-slate-700">メールアドレス</label>
                         <input
-                            type="text"
+                            id="login-email"
+                            name="email"
+                            // text のままだとスマホでメール用キーボードが出ず、
+                            // ブラウザの入力補完も効かない
+                            type="email"
+                            autoComplete="email"
                             value={email}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                             className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
@@ -67,9 +77,12 @@ export const Login = () => {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-slate-700">パスワード</label>
+                        <label htmlFor="login-password" className="block text-sm font-semibold text-slate-700">パスワード</label>
                         <input
+                            id="login-password"
+                            name="password"
                             type="password"
+                            autoComplete="current-password"
                             value={password}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                             className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
@@ -84,6 +97,14 @@ export const Login = () => {
                         ログイン
                     </button>
                 </div>
+
+                <p className="mt-6 text-center text-sm text-slate-600">
+                    アカウントをお持ちでない方は{' '}
+                    {/* 行き先を引き継がないと、登録し終えた人がまた迷子になる */}
+                    <Link to="/register" state={{ from }} className="font-semibold text-sky-600 hover:text-sky-700">
+                        会員登録
+                    </Link>
+                </p>
             </form>
         </div>
     );

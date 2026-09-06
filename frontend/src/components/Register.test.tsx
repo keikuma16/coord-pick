@@ -58,7 +58,7 @@ describe('Register', () => {
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
-  it('登録成功時に一覧へ遷移する', async () => {
+  it('登録成功時はログイン画面へ案内する(登録APIはトークンを返さないため)', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true }))
 
     render(
@@ -73,7 +73,12 @@ describe('Register', () => {
     await userEvent.click(screen.getByRole('button', { name: '新規登録' }))
 
     await waitFor(() => {
-      expect(navigateMock).toHaveBeenCalledWith('/items')
+      // 登録APIはトークンを返さないので、この時点ではまだ未ログイン。
+      // 一覧へ送ると「登録できたのにログインしていない」状態が伝わらない。
+      expect(navigateMock).toHaveBeenCalledWith('/login', {
+        replace: true,
+        state: { from: '/items', flash: '登録が完了しました。ログインしてください。' },
+      })
     })
   })
 

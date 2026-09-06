@@ -46,7 +46,33 @@ describe('Login', () => {
     await waitFor(() => {
       expect(localStorage.getItem('access_token')).toBe('dummy-token')
     })
-    expect(navigateMock).toHaveBeenCalledWith('/items')
+    expect(navigateMock).toHaveBeenCalledWith('/items', { replace: true })
+  })
+
+  it('ログインが必要で弾かれた場合、ログイン後に元の画面へ戻す', async () => {
+    // 未ログインで /upload に入ろうとして飛ばされたケース。
+    // 常に一覧へ返していると、投稿しようとした人が投稿画面に帰れない。
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ access_token: 'dummy-token' }),
+      }),
+    )
+
+    render(
+      <MemoryRouter initialEntries={[{ pathname: '/login', state: { from: '/upload' } }]}>
+        <Login />
+      </MemoryRouter>,
+    )
+
+    await userEvent.type(screen.getByPlaceholderText('example@mail.com'), 'user@example.com')
+    await userEvent.type(screen.getByPlaceholderText('********'), 'password123')
+    await userEvent.click(screen.getByRole('button', { name: 'ログイン' }))
+
+    await waitFor(() => {
+      expect(navigateMock).toHaveBeenCalledWith('/upload', { replace: true })
+    })
   })
 
   it('ログイン失敗時にサーバーのエラーメッセージを表示し、遷移しない', async () => {
