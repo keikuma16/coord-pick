@@ -215,3 +215,93 @@ def test_get_stylings_does_not_expose_password_hash():
     assert creator["user_name"] == "dave"
     assert "password" not in creator
     assert "email" not in creator
+
+
+def _upload_items(monkeypatch, user_name, email, items_json):
+    """商品の検証だけを見たいので、画像アップロードは成功したことにする"""
+    monkeypatch.setattr(
+        cloudinary.uploader,
+        "upload",
+        lambda *a, **k: {"secure_url": "http://example.com/x.png"},
+    )
+    token = _make_authed_token(user_name, email)
+    return client.post(
+        "/upload",
+        headers={"Authorization": f"Bearer {token}"},
+        data={"styling_explanation": "test", "items": items_json},
+        files={"styling_item_img": ("ok.png", _VALID_PNG, "image/png")},
+    )
+
+
+def test_upload_rejects_category_outside_the_list(monkeypatch):
+    # 自由入力だった頃は tops / トップス / Tops が混ざって溜まっていた
+    res = _upload_items(
+        monkeypatch,
+        "kate",
+        "kate@example.com",
+        '[{"name": "shirt", "brand": "b", "category": "\u30c8\u30c3\u30d7\u30b9",'
+        ' "condition": "new", "url": "https://example.com/1"}]',
+    )
+    assert res.status_code == 400
+
+
+def test_upload_requires_url_for_new_items(monkeypatch):
+    # 新品は購入先があるはずなので、URL が無ければ受け付けない
+    res = _upload_items(
+        monkeypatch,
+        "leo",
+        "leo@example.com",
+        '[{"name": "shirt", "brand": "b", "category": "tops", "condition": "new", "url": ""}]',
+    )
+    assert res.status_code == 400
+
+
+def test_upload_allows_used_items_without_url(monkeypatch):
+    # 古着は一点物で、買える場所が無いこともある
+    res = _upload_items(
+        monkeypatch,
+        "mia",
+        "mia@example.com",
+        '[{"name": "vintage tee", "brand": "b", "category": "tops", "condition": "used"}]',
+    )
+    assert res.status_code == 200
+
+    body = client.get("/stylings").json()
+    item = body[0]["items"][0]
+    assert item["item_condition"] == "used"
+    assert item["item_url"] is None
+
+
+def test_upload_rejects_unknown_condition(monkeypatch):
+    res = _upload_items(
+        monkeypatch,
+        "nina",
+        "nina@example.com",
+        '[{"name": "shirt", "brand": "b", "category": "tops", "condition": "brand-new",'
+        ' "url": "https://example.com/1"}]',
+    )
+    assert res.status_code == 400
+
+
+def test_upload_rejects_malformed_url(monkeypatch):
+    res = _upload_items(
+        monkeypatch,
+        "omar",
+        "omar@example.com",
+        '[{"name": "shirt", "brand": "b", "category": "tops", "condition": "new",'
+        ' "url": "example.com/1"}]',
+    )
+    assert res.status_code == 400
+
+
+def test_upload_does_not_save_styling_when_an_item_is_invalid(monkeypatch):
+    # 以前は画像を上げて Styling を commit したあとに商品を見ていたため、
+    # 入力が不正だと商品の無い投稿だけが残っていた
+    res = _upload_items(
+        monkeypatch,
+        "pat",
+        "pat@example.com",
+        '[{"name": "shirt", "brand": "b", "category": "tops", "condition": "new", "url": ""}]',
+    )
+    assert res.status_code == 400
+    assert client.get("/stylings").json() == []

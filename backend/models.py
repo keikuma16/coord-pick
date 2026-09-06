@@ -29,6 +29,8 @@ class Item(Base):
     item_name = Column(String, nullable=False)
     item_brand = Column(String)
     item_category = Column(String)
+    # 新品(new) / 古着(used)。後から足した列なので、既存の行は NULL のまま
+    item_condition = Column(String)
     styling_id = Column(Integer, ForeignKey('stylings.styling_id'))
     styling_post = relationship('Styling', back_populates='items')
 

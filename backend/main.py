@@ -1,8 +1,10 @@
 from fastapi import FastAPI, Depends, Form, File, UploadFile, HTTPException
 from typing import List
+from sqlalchemy import inspect, text
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 import schemas, models, auth
+from constants import ITEM_CATEGORIES, ITEM_CONDITIONS, ITEM_CONDITION_NEW
 from db import SessionLocal 
 from fastapi.middleware.cors import CORSMiddleware
 import os
@@ -13,6 +15,27 @@ import cloudinary
 import cloudinary.uploader 
 
 models.Base.metadata.create_all(bind=engine)
+
+
+def ensure_item_condition_column():
+    """items.item_condition を後から足すための繋ぎ。
+
+    create_all は無いテーブルを作るだけで、既存テーブルに列は足さない。
+    そのため本番の Postgres には item_condition が無いまま
+    「列が存在しない」で全件取得が落ちる。起動時に一度だけ流しておく。
+    本来は Alembic を入れる場所。
+    """
+    inspector = inspect(engine)
+    if "items" not in inspector.get_table_names():
+        return
+    existing = {column["name"] for column in inspector.get_columns("items")}
+    if "item_condition" in existing:
+        return
+    with engine.begin() as connection:
+        connection.execute(text("ALTER TABLE items ADD COLUMN item_condition VARCHAR"))
+
+
+ensure_item_condition_column()
 
 app = FastAPI()
 
@@ -37,6 +60,65 @@ def detect_image_content_type(data: bytes):
     if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
         return "image/webp"
     return None
+
+
+def validate_item_list(item_list):
+    """商品の入力をまとめて検証し、保存する形に整えて返す。
+
+    画像を Cloudinary に上げる前に呼ぶ。以前は先に画像を上げて Styling も
+    commit してから商品を見ていたため、入力が不正だと商品の無い投稿と
+    使われない画像だけが残っていた。
+    """
+    normalized = []
+    for item in item_list:
+        if not isinstance(item, dict):
+            raise HTTPException(status_code=400, detail="商品情報の形式が正しくありません。")
+
+        def field(key):
+            value = item.get(key)
+            return value.strip() if isinstance(value, str) else ""
+
+        name = field("name")
+        brand = field("brand")
+        category = field("category")
+        condition = field("condition")
+        url = field("url")
+
+        if not name or not brand:
+            raise HTTPException(
+                status_code=400,
+                detail="商品情報に必要な項目（名前・ブランド）が足りません。",
+            )
+        if category not in ITEM_CATEGORIES:
+            raise HTTPException(status_code=400, detail="カテゴリーは一覧から選んでください。")
+        if condition not in ITEM_CONDITIONS:
+            raise HTTPException(
+                status_code=400,
+                detail="商品の状態は「新品」か「古着」のどちらかを選んでください。",
+            )
+        # 新品は購入先があるはずなので必須。古着は一点物で、買える場所が無いこともある
+        if condition == ITEM_CONDITION_NEW and not url:
+            raise HTTPException(
+                status_code=400,
+                detail="新品の商品には購入先URLが必要です。",
+            )
+        if url and not url.startswith(("http://", "https://")):
+            raise HTTPException(
+                status_code=400,
+                detail="商品URLは http:// または https:// から始まる形式で入力してください。",
+            )
+
+        normalized.append(
+            {
+                "name": name,
+                "brand": brand,
+                "category": category,
+                "condition": condition,
+                # 古着で未入力のときは空文字ではなく NULL で持つ
+                "url": url or None,
+            }
+        )
+    return normalized
 
 cloudinary.config(
   cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME"),
@@ -128,6 +210,9 @@ async def styling_create(
     if not isinstance(item_list, list):
         raise HTTPException(status_code=400, detail="商品情報の形式が正しくありません。")
 
+    # 画像を上げる前に検証する。不正な入力のために Cloudinary の容量を使わない
+    items_to_create = validate_item_list(item_list)
+
     # Cloudinary への保存。認証情報の未設定やサービス障害でここが落ちると、
     # 以前は素の 500 になり原因が分からなかった。502 で「画像保存に失敗」と返す。
     try:
@@ -155,20 +240,16 @@ async def styling_create(
         db.commit()
         db.refresh(new_styling)
 
-        for item in item_list:
-            # 商品の必須項目が欠けていたら 400。KeyError による 500 を防ぐ。
-            try:
-                new_item = models.Item(
-                    item_name = item["name"],
-                    item_brand = item["brand"],
-                    item_url = item["url"],
-                    item_category = item["category"],
-                    styling_id = new_styling.styling_id
-                )
-            except (KeyError, TypeError):
-                db.rollback()
-                raise HTTPException(status_code=400, detail="商品情報に必要な項目（名前・ブランド・URL・カテゴリー）が足りません。")
-            db.add(new_item)
+        # 検証済みなので、ここでは詰めるだけ
+        for item in items_to_create:
+            db.add(models.Item(
+                item_name = item["name"],
+                item_brand = item["brand"],
+                item_url = item["url"],
+                item_category = item["category"],
+                item_condition = item["condition"],
+                styling_id = new_styling.styling_id
+            ))
 
         db.commit()
     except HTTPException:

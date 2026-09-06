@@ -19,8 +19,11 @@ class UserPublic(BaseModel):
 class ItemCreate(BaseModel):
     item_name: str
     item_brand: str
-    item_url: str
+    # 古着は買える場所が無いこともあるので任意。新品のときだけ必須にする(検証は main 側)
+    item_url: str | None = None
     item_category: str
+    # 後から足した項目。既存の投稿は NULL のままなので任意にしておく
+    item_condition: str | None = None
 class Item(ItemCreate):
     item_id: int
     class Config:
