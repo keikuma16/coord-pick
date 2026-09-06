@@ -117,9 +117,12 @@ export const ItemList = () => {
                             key={styling.styling_id}
                             className="group block overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
                         >
-                            <div className="aspect-square overflow-hidden bg-slate-100">
+                            {/* 全身のコーデを切らずに見せる。縦長の写真が多いので枠は 3:4 にし、
+                                はみ出す分は切らずに縮めて収める(contain)。
+                                以前は正方形 + cover で、頭と足が切れていた。 */}
+                            <div className="aspect-[3/4] overflow-hidden bg-slate-100">
                                 <img
-                                    className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                                    className="h-full w-full object-contain transition duration-300 group-hover:scale-105"
                                     // 原寸のままだとカード1枚に数 MB 落ちる。表示幅ぶんに縮めたものを取る
                                     src={cloudinaryImage(styling.styling_item_img, CARD_IMAGE_WIDTH)}
                                     alt={styling.styling_explanation}
